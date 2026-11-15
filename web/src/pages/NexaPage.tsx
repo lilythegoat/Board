@@ -85,7 +85,7 @@ export default function NexaPage() {
         <NexaAvatar size={24} />
         <span className={s.headerText}>
           <span className={s.headerLine}>
-            <span className={s.headerName}>Nexa</span>
+            <span className={s.headerName}>Board</span>
             <OfficialBadge />
           </span>
           <span className={s.headerSub}>{t("nexa.headerSub")}</span>
@@ -165,7 +165,7 @@ function FeedFrame({ kind, kindLabel, at, children }: { kind: string; kindLabel:
       <NexaAvatar size={40} />
       <div className={s.feedBody}>
         <div className={s.feedHead}>
-          <span className={s.lineName}>Nexa</span>
+          <span className={s.lineName}>Board</span>
           <OfficialBadge compact />
           <span className={s.feedKind}>{kindLabel}</span>
           <time className={s.lineTime} dateTime={new Date(at).toISOString()} title={fullDate(at)}>
@@ -186,7 +186,7 @@ function FeedEntry({ item, people, onOpen }: { item: Exclude<FeedItem, BugItem |
       <NexaAvatar size={40} />
       <div className={s.feedBody}>
         <div className={s.feedHead}>
-          <span className={s.lineName}>Nexa</span>
+          <span className={s.lineName}>Board</span>
           <OfficialBadge compact />
           <span className={s.feedKind}>{kind}</span>
           <time className={s.lineTime} dateTime={new Date(item.at).toISOString()} title={fullDate(item.at)}>
