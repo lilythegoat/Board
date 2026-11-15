@@ -14,6 +14,7 @@ import { joinVoice } from "@/voice/session";
 import { useVoice } from "@/stores/voice";
 import { useVoiceDrag } from "@/stores/voiceDrag";
 import { Tooltip } from "@/components/common/Tooltip";
+import { OfficialBadge } from "@/components/nexa/NexaBits";
 import { P, isPrivateChannel } from "@/lib/perms";
 import { isMuted } from "@/lib/unread";
 import { useViewAs } from "@/stores/viewAs";
