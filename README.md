@@ -1,9 +1,9 @@
-# Nexa
+# Board
 
-Nexa is a self-hosted chat app for communities and private conversations. It has a web
+Board is a self-hosted chat app for communities and private conversations. It has a web
 app, desktop apps for Windows, macOS and Linux, and a native Android app.
 
-Try [Nexa in your browser](https://nexa.fish) or [download an app](https://nexa.fish/download).
+Try [Board in your browser](https://nexa.fish) or [download an app](https://nexa.fish/download).
 
 ![Nexa's chat interface with a server, channels, messages and member list](web/public/home/app.png)
 
@@ -43,8 +43,8 @@ npm, and Python 3 for the check scripts.
 Clone the repository:
 
 ```sh
-git clone https://github.com/terrydavisthe2nd/nexa.git
-cd nexa
+git clone https://github.com/lilythegoat/board.git
+cd board
 ```
 
 Build the web app and server into an isolated directory:
