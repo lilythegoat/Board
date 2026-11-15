@@ -20,10 +20,10 @@ export const LEGAL_EFFECTIVE = "2026-11-06";
  */
 export const LEGAL_VERSION = `${LEGAL_EFFECTIVE}.1`;
 
-export const CONTACT_EMAIL = "evilionx3@proton.me";
+export const CONTACT_EMAIL = "suppportboard@gmail.com";
 
 /** In-app owner account for contact / reports. */
-export const OWNER_USERNAME = "nora";
+export const OWNER_USERNAME = "_cxrseddd";
 
 /** Public source for every Nexa client and the server; also read by Android. */
 export const GITHUB_URL = "https://github.com/terrydavisthe2nd/nexa";
