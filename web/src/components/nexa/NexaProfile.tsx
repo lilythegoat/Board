@@ -25,9 +25,9 @@ export function NexaProfile({ variant, onClose }: { variant: string; onClose?: (
       </div>
       <div className={s.nexaProfileBody}>
         <h2 className={s.nexaProfileName}>
-          Nexa <OfficialBadge />
+          Board <OfficialBadge />
         </h2>
-        <span className={s.personUser}>@nexa</span>
+        <span className={s.personUser}>@board</span>
         <p className={s.nexaProfileAbout}>{t("nexa.profileAbout")}</p>
         <p className={s.nexaProfileFine}>{t("nexa.profileNever")}</p>
         <Button
