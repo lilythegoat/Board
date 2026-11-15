@@ -1,1 +1,57 @@
+.page {
+  padding: 24px;
+  overflow-y: auto;
+  max-width: 640px;
+  margin: 0 auto;
+}
 
+.title {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0 0 16px;
+}
+
+.balanceCard {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.balanceEmoji {
+  font-size: 48px;
+}
+
+.balanceNumber {
+  font-size: 40px;
+  font-weight: 800;
+}
+
+.balanceLabel {
+  opacity: 0.7;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.item {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price {
+  font-weight: 700;
+}
