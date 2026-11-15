@@ -99,6 +99,7 @@ export function AppRoutes() {
                   {/* the list and the note open beside it: one page, so moving between notes keeps the list */}
                   <Route path="@me/support" element={<SupportPage />} />
                   <Route path="@me/notes" element={<NotesPage />} />
+                  <Route path="@me/cookies" element={<CookiesPage />} />
                   <Route path="@me/notes/:noteId" element={<NotesPage />} />
                   <Route path="@admin" element={<AdminPanelPage />}>
                     <Route index element={<Navigate to="reports" replace />} />
