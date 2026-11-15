@@ -3282,7 +3282,7 @@
   "profileLink.copy": "Copy Profile Link",
   "profileLink.couldNotLoad": "Could not load the profile.",
   "profileLink.couldNotLoadToast": "Could not load the profile. Check your connection and try again.",
-  "profileLink.goToBoard": "Go to Board",
+  "profileLink.goToNexa": "Go to Board",
   "profileLink.loading": "Loading the profile",
   "profileLink.logInToAddFriend": "Log In to Add Friend",
   "profileLink.missingBody": "The link may be mistyped, or the person may have changed their username.",
