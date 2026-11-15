@@ -3520,7 +3520,7 @@
   "recover.whatAResetDoes": "重置会让所有设备退出登录，并关闭两步验证。你的消息保持不变。",
   "register.alreadyHaveAnAccount": "已经有账号了？",
   "register.confirmPassword": "确认密码",
-  "register.continueToBoard": "继续前往 Board",
+  "register.continueToNexa": "继续前往 Board",
   "register.copyFailed": "无法访问剪贴板。请选中密钥后复制。",
   "register.createAnAccount": "创建账号",
   "register.displayName": "显示名称",
