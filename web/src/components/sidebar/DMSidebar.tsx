@@ -1,7 +1,7 @@
 import { useMediaAnimation } from "@/lib/mediaAnimation";
 import { withOwn } from "@/lib/useMemberLook";
 import { nameClass, nameStyle } from "@/lib/roleLook";
-import { ChevronDown, GripVertical, Lock, MessageCircle, MoreHorizontal, Cookie, Heart, Notebook, Pin, Plus, Search, Shield, Users, X } from "lucide-react";
+import { ChevronDown, GripVertical, Lock, MessageCircle, MoreHorizontal, Cookie, Heart, NotebookPen, Pin, Plus, Search, Shield, Users, X } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Avatar, showsTyping } from "@/components/common/Avatar";
 import { menuAnchor } from "@/components/common/ContextMenu";
