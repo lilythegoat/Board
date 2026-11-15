@@ -25,8 +25,8 @@ export const CONTACT_EMAIL = "suppportboard@gmail.com";
 /** In-app owner account for contact / reports. */
 export const OWNER_USERNAME = "_cxrseddd";
 
-/** Public source for every Nexa client and the server; also read by Android. */
-export const GITHUB_URL = "https://github.com/terrydavisthe2nd/nexa";
+/** Public source for every Board client and the server; also read by Android. */
+export const GITHUB_URL = "https://github.com/lilythegoat/board";
 
 /** The guides for plugin authors and custom CSS, read on GitHub (docs/plugins.md, docs/custom-css.md). */
 export const PLUGIN_GUIDE_URL = `${GITHUB_URL}/blob/main/docs/plugins.md`;
