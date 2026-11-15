@@ -47,7 +47,7 @@ export function NexaNotices() {
           <NexaAvatar size={40} />
           <div className={s.modalWho}>
             <span className={s.modalName}>
-              Nexa <OfficialBadge />
+              Board <OfficialBadge />
             </span>
             <span className={s.modalSub}>{t("nexa.modal.sub")}</span>
           </div>
@@ -85,7 +85,7 @@ export function DeletedNotice() {
           <NexaAvatar size={40} />
           <div className={s.modalWho}>
             <span className={s.modalName}>
-              Nexa <OfficialBadge />
+              Board <OfficialBadge />
             </span>
             <span className={s.modalSub}>{t("nexa.modal.sub")}</span>
           </div>
