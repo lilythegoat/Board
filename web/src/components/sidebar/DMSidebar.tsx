@@ -653,7 +653,10 @@ export function DMSidebar() {
           <span className={s.navIcon} data-support=""><Heart size={22} /></span>
           <span className={s.navLabel}>{t("support.nav")}</span>
         </button>
-        {isAdmin ? (
+               <button className={s.nav} data-selected={loc.pathname.startsWith("/channels/@me/cookies")} onClick={() => go("/channels/@me/cookies")} data-testid="nav-cookies">
+          <span className={s.navIcon}><Cookie size={22} /></span>
+          <span className={s.navLabel}>{t("cookies.nav")}</span>
+        </button>        {isAdmin ? (
           <button
             className={s.nav}
             data-selected={loc.pathname.startsWith("/channels/@admin")}
