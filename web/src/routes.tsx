@@ -22,6 +22,7 @@ const NexaPage = lazyPage(() => import("@/pages/NexaPage"));
 const NexaCasePage = lazyPage(() => import("@/pages/NexaCasePage"));
 const NexaBugPage = lazyPage(() => import("@/pages/NexaBugPage"));
 const NotesPage = lazyPage(() => import("@/pages/NotesPage"));
+const CookiesPage = lazyPage(() => import("@/pages/CookiesPage"));
 const SupportPage = lazyPage(() => import("@/components/support/SupportPage"));
 const NoteLinkPage = lazyPage(() => import("@/pages/NoteLinkPage"));
 const DiscordConnectedPage = lazyPage(() => import("@/pages/DiscordConnectedPage"));
