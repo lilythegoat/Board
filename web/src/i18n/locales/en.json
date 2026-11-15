@@ -5064,7 +5064,7 @@
   "nexa.postedBy": "Posted by",
   "nexa.liftedMute": "Your mute (case #{number}) was lifted early by",
   "nexa.liftedBan": "Your ban (case #{number}) was lifted early by",
-  "nexa.backToBoard": "Back to Board",
+  "nexa.backToNexa": "Back to Board",
   "nexa.caseTitle": "Moderation Case",
   "nexa.caseMissing": "This case could not be opened.",
   "nexa.profileAbout": "The official Board account. Moderation notices about your account and announcements for everyone arrive here, and each notice opens a private thread with the moderation team.",
