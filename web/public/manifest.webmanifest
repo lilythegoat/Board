@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Nexa",
-  "short_name": "Nexa",
+  "name": "Board",
+  "short_name": "Board",
   "description": "End-to-end encrypted chat, voice and servers.",
   "categories": ["social", "communication"],
   "start_url": "/channels/@me",
