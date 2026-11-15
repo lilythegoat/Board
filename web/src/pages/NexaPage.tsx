@@ -104,7 +104,7 @@ export default function NexaPage() {
           <div className={s.intro}>
             <NexaAvatar size={80} />
             <h1 className={s.introTitle}>
-              Nexa <OfficialBadge />
+              Board <OfficialBadge />
             </h1>
             <p className={s.introText}>{t("nexa.intro")}</p>
           </div>
