@@ -213,14 +213,14 @@ function useAuthor(id: string, kind: ThreadLine["kind"], people: People, perspec
   const nexaId = useNexa((n) => n.state?.account_id ?? "");
   const person = people[id];
   const asNexa = kind === "staff" && perspective === "member";
-  return { person, asNexa, nexaId, name: asNexa ? "Nexa" : personName(person) };
+  return { person, asNexa, nexaId, name: asNexa ? "Board" : personName(person) };
 }
 
 function OpenerRow({ opener, people }: { opener: ThreadOpener; people: People }) {
   const nexaId = useNexa((n) => n.state?.account_id ?? "");
   const fromNexa = opener.from === "nexa";
   const person = fromNexa ? undefined : people[opener.from];
-  const name = fromNexa ? "Nexa" : personName(person);
+  const name = fromNexa ? "Board" : personName(person);
   const profile = (e: MouseEvent<HTMLElement>) => {
     const id = fromNexa ? nexaId : opener.from;
     if (id && !person?.deleted) openProfilePopout(id, e.currentTarget);
