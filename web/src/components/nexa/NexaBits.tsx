@@ -2,7 +2,6 @@ import { PersonName } from "@/components/common/PersonName";
 import { BadgeCheck } from "lucide-react";
 import type { Person } from "@/api/moderation";
 import { Avatar } from "@/components/common/Avatar";
-import { NexaMark } from "@/components/common/Brand";
 import { personName } from "@/lib/moderation";
 import { useUI } from "@/stores/ui";
 import { t } from "@/i18n";
@@ -12,7 +11,7 @@ import s from "./Nexa.module.css";
 export function NexaAvatar({ size = 40, className }: { size?: number; className?: string }) {
   return (
     <span className={[s.nexaAvatar, className ?? ""].join(" ")} style={{ width: size, height: size }} aria-hidden="true">
-      <NexaMark size={Math.round(size * 0.58)} />
+      <img src="/icons/icon-512.png" alt="" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", display: "block" }} />
     </span>
   );
 }
