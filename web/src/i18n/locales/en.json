@@ -3321,7 +3321,7 @@
   "recover.whatAResetDoes": "Resetting signs out every device and turns off two-factor authentication. Your messages stay as they are.",
   "register.alreadyHaveAnAccount": "Already have an account?",
   "register.confirmPassword": "Confirm Password",
-  "register.continueToBoard": "Continue to Board",
+  "register.continueToNexa": "Continue to Board",
   "register.copyFailed": "Could not reach the clipboard. Select the key and copy it.",
   "register.createAnAccount": "Create an Account",
   "register.displayName": "Display Name",
