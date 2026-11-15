@@ -439,7 +439,7 @@ export function ServerSidebar({ serverId }: { serverId: string }) {
   return (
     <div className={s.sidebar} data-banner={!!banner} onDrop={(e) => e.preventDefault()}>
       <button ref={headRef} className={s.head} data-open={menuOpen} data-over-banner={banner ? !pastBanner : undefined} onPointerDown={() => { wasOpen.current = menuOpen; }} onClick={openHeaderMenu} aria-haspopup="menu" aria-expanded={menuOpen}>
-        <span className={s.headName}>{st.server.name}</span>
+        <span className={s.headName}>{st.server.name}</span>{st.server.name === "Board Headquarters" ? <OfficialBadge compact /> : null}
         {menuOpen ? <X size={18} /> : <ChevronDown size={18} />}
       </button>
       <div className={s.scroll} ref={listRef} onScroll={banner ? measureBanner : undefined} onDragOver={onListDragOver} onDragLeave={onListDragLeave} onDrop={onDrop}>
