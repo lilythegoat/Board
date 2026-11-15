@@ -409,7 +409,7 @@ export function DMSidebar() {
           {mark(NEXA_ID)}
           <NexaAvatar size={32} />
           <span className={s.text}>
-            <span className={s.name} style={{ display: "flex", alignItems: "center", gap: 6 }}>Nexa <OfficialBadge compact /></span>
+            <span className={s.name} style={{ display: "flex", alignItems: "center", gap: 6 }}>Board <OfficialBadge compact /></span>
             <span className={s.sub}>{t("nexa.sidebarSub")}</span>
           </span>
         </button>
