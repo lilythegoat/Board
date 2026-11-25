@@ -6,6 +6,7 @@ import { ServerSidebar } from "@/components/sidebar/ServerSidebar";
 import { StaffSidebar } from "@/components/moderation/StaffSidebar";
 import { ModalHost } from "@/components/modals/ModalHost";
 import { NexaNotices } from "@/components/nexa/NexaNotices";
+import { RulesGate } from "@/components/legal/RulesGate";
 import { TermsGate } from "@/components/legal/TermsGate";
 import { WhatsNew } from "@/components/shell/WhatsNewDialog";
 import { lazyPage } from "@/lib/lazyChunk";
@@ -313,6 +314,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <ModalHost />
       <NexaNotices />
       <TermsGate />
+      <RulesGate />
       <WhatsNew />
       <Suspense fallback={null}>
         <Plans />

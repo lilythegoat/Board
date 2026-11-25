@@ -24,11 +24,14 @@ const DeleteServerPage = readyPage(() => import("./pages/DeleteServerPage"));
 const AutomodPage = readyPage(() => import("./pages/automod/AutomodPage"));
 const DiscoverySettingsPage = readyPage(() => import("./pages/DiscoverySettingsPage"));
 const SafetyPage = readyPage(() => import("./pages/SafetyPage"));
+const RulesPage = readyPage(() => import("./pages/RulesPage"));
+const BanAppealsPage = readyPage(() => import("./pages/BanAppealsPage"));
 
 const PAGES: Record<string, ReadyPage<never>> = {
   overview: OverviewPage, tag: ServerTagPage, roles: RolesPage, members: MembersPage, bans: BansPage, invites: InvitesPage, audit: AuditLogPage,
   encryption: EncryptionPage, emoji: EmojiPage, stickers: ServerStickersPage, integrations: IntegrationsPage, delete: DeleteServerPage,
   automod: AutomodPage, discovery: DiscoverySettingsPage, safety: SafetyPage,
+  rules: RulesPage, banAppeals: BanAppealsPage,
 } as unknown as Record<string, ReadyPage<never>>;
 
 export default function ServerSettingsModal({ onClose, serverId, page: initial }: { onClose: () => void; serverId: string; page?: string | undefined }) {
@@ -49,8 +52,11 @@ export default function ServerSettingsModal({ onClose, serverId, page: initial }
     { id: "members", label: t("server.serverSettings.members"), ok: true, group: 1 },
     { id: "invites", label: t("server.invites.invites"), ok: canI(st, P.MANAGE_SERVER), group: 1 },
     { id: "bans", label: t("server.serverSettings.bans"), ok: canI(st, P.BAN_MEMBERS), group: 1 },
+    { id: "banAppeals", label: t("serverAppeals.title"), ok: canI(st, P.BAN_MEMBERS), group: 1 },
     { id: "automod", label: t("automod.title"), ok: canI(st, P.MANAGE_SERVER) || canI(st, P.VIEW_AUDIT_LOG), group: 1 },
     { id: "safety", label: t("safety.title"), ok: canI(st, P.MANAGE_SERVER), group: 1 },
+    // the server's rules are every member's to read; the page itself is read-only without Manage Server
+    { id: "rules", label: t("serverRules.title"), ok: true, group: 1 },
     { id: "audit", label: t("server.auditLog.auditLog"), ok: canI(st, P.VIEW_AUDIT_LOG), group: 1 },
     { id: "delete", label: t("server.deleteServer.deleteServer"), ok: owner, group: 2, danger: true },
   ];

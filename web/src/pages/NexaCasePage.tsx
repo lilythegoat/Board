@@ -43,6 +43,13 @@ export default function NexaCasePage() {
     if (!acknowledged) void useNexa.getState().ack(caseId).catch(() => undefined);
   }, [acknowledged, caseId]);
 
+  // The appeal is the thread below: the button takes the member to its box.
+  const focusComposer = () => {
+    const box = document.querySelector<HTMLTextAreaElement>('[data-testid="case-composer"]');
+    box?.scrollIntoView({ block: "nearest" });
+    box?.focus();
+  };
+
   const back = () => nav("/channels/@me/nexa");
   const c = thread?.case;
   const standing = c ? caseStanding(c) : null;
@@ -61,6 +68,11 @@ export default function NexaCasePage() {
           {c ? <span className={s.headerSub}>{noticeTitle(c.action, c.details)}</span> : null}
         </span>
         <span className={s.spacer} />
+        {c && !closed && (c.action === "ban" || c.action === "mute") ? (
+          <Button size="sm" variant="secondary" onClick={focusComposer} data-testid="appeal-button">
+            {t("appeal.button")}
+          </Button>
+        ) : null}
         {standing ? (
           <span className={[s.chip, s.headerChip].join(" ")} data-tone={standing.tone}>
             {standing.label}

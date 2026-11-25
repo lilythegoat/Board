@@ -33,6 +33,27 @@ export interface ServerPatch {
   discovery_language?: string;
   verify_account_minutes?: number;
   verify_member_minutes?: number;
+  rules?: string;
+}
+
+/** A banned member's appeal against a server's ban, and where it stands. */
+export interface ServerBanAppeal {
+  id: Snowflake;
+  server_id: Snowflake;
+  user_id: Snowflake;
+  message: string;
+  status: "pending" | "accepted" | "denied";
+  created_at: number;
+  resolved_by: Snowflake | null;
+  resolved_at: number | null;
+}
+
+/** What the server says about the caller's own ban from a server: not
+ *  banned, the ban itself, and their appeal if they have made one. */
+export interface MyBanState {
+  banned: boolean;
+  ban: Ban | null;
+  appeal: ServerBanAppeal | null;
 }
 
 export interface ChannelPatch {
@@ -295,6 +316,20 @@ export const servers = {
   },
   unban(id: Snowflake, userId: Snowflake): Promise<void> {
     return api.request<void>("DELETE", `/servers/${id}/bans/${userId}`);
+  },
+  /** The caller's own standing with a server they may be banned from: the
+   *  one appeal call that works without being a member. */
+  myBan(id: Snowflake): Promise<MyBanState> {
+    return api.request<MyBanState>("GET", `/servers/${id}/ban-appeal`);
+  },
+  appealBan(id: Snowflake, message: string): Promise<ServerBanAppeal> {
+    return api.request<ServerBanAppeal>("POST", `/servers/${id}/ban-appeal`, { message });
+  },
+  banAppeals(id: Snowflake): Promise<{ appeals: ServerBanAppeal[]; users: PublicUser[] }> {
+    return api.request<{ appeals: ServerBanAppeal[]; users: PublicUser[] }>("GET", `/servers/${id}/ban-appeals`);
+  },
+  resolveBanAppeal(id: Snowflake, appealId: Snowflake, action: "accept" | "deny"): Promise<ServerBanAppeal> {
+    return api.request<ServerBanAppeal>("POST", `/servers/${id}/ban-appeals/${appealId}/resolve`, { action });
   },
   invites(id: Snowflake): Promise<Invite[]> {
     return api.request<Invite[]>("GET", `/servers/${id}/invites`);

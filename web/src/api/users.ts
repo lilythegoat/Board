@@ -52,6 +52,11 @@ export const users = {
   deleteMe(auth_key: string): Promise<void> {
     return api.request<void>("POST", "/users/@me/delete", { auth_key });
   },
+  /** Records that the account has read and agreed to Board's rules
+   *  (the rules step, lib/rules); answers with the updated account. */
+  acceptRules(): Promise<MeUser> {
+    return api.request<MeUser>("POST", "/me/accept-rules");
+  },
   /** What deleting the account would take with it. */
   deletePreview(): Promise<PurgeCounts> {
     return api.request<PurgeCounts>("GET", "/users/@me/delete-preview");

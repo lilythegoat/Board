@@ -9,6 +9,7 @@ const HomePage = lazyPage(() => import("@/pages/HomePage"));
 const LoginPage = lazyPage(() => import("@/pages/LoginPage"));
 const QrApprovePage = lazyPage(() => import("@/pages/QrApprovePage"));
 const RegisterPage = lazyPage(() => import("@/pages/RegisterPage"));
+const RulesGatePage = lazyPage(() => import("@/pages/RulesGatePage"));
 const RecoverPage = lazyPage(() => import("@/pages/RecoverPage"));
 const FriendsPage = lazyPage(() => import("@/pages/FriendsPage"));
 const DMPage = lazyPage(() => import("@/pages/DMPage"));
@@ -84,6 +85,10 @@ export function AppRoutes() {
         {/* a plan bought as a link: whoever opens it first claims it */}
         <Route path="/gift/:code" element={<GiftPage />} />
         <Route path="/oauth2/authorize" element={<RequireAuth><AuthorizePage /></RequireAuth>} />
+        {/* the rules step: outside the /channels subtree on purpose, so the
+            gate that sends a new account here (components/legal/RulesGate,
+            mounted in the shell) unmounts and cannot loop */}
+        <Route path="/rules" element={<RequireAuth><RulesGatePage /></RequireAuth>} />
         {/* where the browser lands after linking Discord from the desktop app: how it went, signed in or not */}
         <Route path="/connected/discord" element={<DiscordConnectedPage />} />
         <Route

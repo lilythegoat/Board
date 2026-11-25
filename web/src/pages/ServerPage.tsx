@@ -2,11 +2,12 @@ import { ChannelGlyph } from "@/components/common/ChannelGlyph";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { ApiError } from "@/api/client";
-import { servers as serversApi } from "@/api/servers";
+import { servers as serversApi, type MyBanState } from "@/api/servers";
 import { channels as channelsApi } from "@/api/channels";
 import { lazyPage } from "@/lib/lazyChunk";
 import { isThread } from "@/stores/threads";
 import { Button } from "@/components/common/Button";
+import { TextArea } from "@/components/common/TextInput";
 import { ChatView } from "@/components/chat/ChatView";
 import { VoiceRoom } from "@/components/voice/VoiceRoom";
 import { PaneSpinner } from "@/components/common/Spinner";
@@ -46,6 +47,11 @@ export default function ServerPage() {
   // at home, a 500 belongs on a page with a Try again on it. Sending the reader
   // home either way made a network blip indistinguishable from being removed.
   const [missing, setMissing] = useState(false);
+  // Banned from this server is its own answer, not "gone": the ban, and the
+  // appeal against it, are shown where the server would have opened.
+  const [banState, setBanState] = useState<MyBanState | null>(null);
+  const [appealText, setAppealText] = useState("");
+  const [appealBusy, setAppealBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const seen = useRef<string | null>(null);
@@ -74,6 +80,7 @@ export default function ServerPage() {
     if (st) {
       seen.current = serverId;
       setMissing(false);
+      setBanState(null);
       return;
     }
     if (!serverId) return;
@@ -98,8 +105,30 @@ export default function ServerPage() {
       })
       .catch((err: unknown) => {
         if (!alive) return;
-        if (err instanceof ApiError && (err.status === 403 || err.status === 404)) {
-          useUI.getState().toast(err.status === 403 ? tr_("server.youAreNoLongerInThatServer") : tr_("server.thatServerIsGone"), "error");
+        if (err instanceof ApiError && err.status === 403) {
+          // A ban and a removal answer the same way here; ask which it is
+          // before sending the reader home — the appeal state answers for
+          // a banned member, where the server itself will not.
+          void serversApi
+            .myBan(serverId)
+            .then((state) => {
+              if (!alive) return;
+              if (state.banned) {
+                setBanState(state);
+                return;
+              }
+              useUI.getState().toast(tr_("server.youAreNoLongerInThatServer"), "error");
+              setMissing(true);
+            })
+            .catch(() => {
+              if (!alive) return;
+              useUI.getState().toast(tr_("server.youAreNoLongerInThatServer"), "error");
+              setMissing(true);
+            });
+          return;
+        }
+        if (err instanceof ApiError && err.status === 404) {
+          useUI.getState().toast(tr_("server.thatServerIsGone"), "error");
           setMissing(true);
           return;
         }
@@ -144,6 +173,48 @@ export default function ServerPage() {
   useEffect(() => {
     if (missing) nav("/channels/@me", { replace: true });
   }, [missing, nav]);
+
+  const sendAppeal = async () => {
+    setAppealBusy(true);
+    try {
+      const appeal = await serversApi.appealBan(serverId, appealText.trim());
+      setBanState((cur) => (cur ? { ...cur, appeal } : cur));
+      setAppealText("");
+      useUI.getState().toast(tr_("serverAppeals.sentToast"), "success");
+    } catch (err) {
+      useUI.getState().toast(err instanceof ApiError ? err.message : tr_("serverAppeals.sendFailed"), "error");
+    } finally {
+      setAppealBusy(false);
+    }
+  };
+
+  if (!st && banState?.banned) {
+    const appeal = banState.appeal;
+    return (
+      <div className={s.empty}>
+        <header className={s.header}><PageHeaderButtons /></header>
+        <div className={s.emptyBody}>
+          <h2>{tr_("serverAppeals.bannedTitle")}</h2>
+          <p>{tr_("serverAppeals.bannedLead")}</p>
+          {banState.ban?.reason ? <p>{tr_("serverAppeals.banReason", { reason: banState.ban.reason })}</p> : null}
+          {appeal?.status === "pending" ? (
+            <p data-testid="server-appeal-pending">{tr_("serverAppeals.pending")}</p>
+          ) : appeal?.status === "accepted" ? (
+            <p>{tr_("serverAppeals.acceptedNote")}</p>
+          ) : (
+            <>
+              {appeal?.status === "denied" ? <p>{tr_("serverAppeals.deniedNote")}</p> : null}
+              <TextArea value={appealText} onChange={(e) => setAppealText(e.target.value)} rows={4} maxLength={1000} placeholder={tr_("serverAppeals.messagePlaceholder")} data-testid="server-appeal-message" style={{ width: "100%", maxWidth: 420, textAlign: "left" }} />
+              <Button loading={appealBusy} onClick={() => void sendAppeal()} data-testid="server-appeal-send">
+                {tr_("serverAppeals.appealButton")}
+              </Button>
+            </>
+          )}
+          <Button variant="secondary" onClick={() => nav("/channels/@me", { replace: true })}>{tr_("serverAppeals.backHome")}</Button>
+        </div>
+      </div>
+    );
+  }
 
   if (!st && failed) {
     return (

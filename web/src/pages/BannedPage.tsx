@@ -61,6 +61,13 @@ export default function BannedPage() {
     if (pendingBan) void useNexa.getState().ack(caseId).catch(() => undefined);
   }, [pendingBan, caseId]);
 
+  // The appeal is the thread below: the button takes the member to its box.
+  const focusComposer = () => {
+    const box = document.querySelector<HTMLTextAreaElement>('[data-testid="case-composer"]');
+    box?.scrollIntoView({ block: "nearest" });
+    box?.focus();
+  };
+
   return (
     <main className={s.banPage} data-testid="banned-page">
       <div className={s.banColumn}>
@@ -87,6 +94,11 @@ export default function BannedPage() {
             <div className={s.banThreadHead}>
               <MessagesSquare size={18} aria-hidden="true" />
               {t("nexa.ban.appealTitle")}
+              {thread.case.status !== "closed" ? (
+                <Button size="sm" variant="secondary" style={{ marginLeft: "auto" }} onClick={focusComposer} data-testid="appeal-button">
+                  {t("appeal.button")}
+                </Button>
+              ) : null}
             </div>
             <ThreadChat
               lines={thread.messages}

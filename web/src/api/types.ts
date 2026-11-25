@@ -198,6 +198,12 @@ export interface MeUser extends PublicUser {
   backup_codes_left?: number;
   /** The account's moderation standing: a mute or ban in force, notices to show. */
   nexa?: NexaState;
+  /** Which version of Board's rules the account has agreed to (lib/rules);
+   *  0 while it still has the rules step to do. */
+  rules_version: number;
+  /** When the account agreed to the rules, in ms; null for accounts that
+   *  agreed before the step recorded it. */
+  rules_accepted_at: number | null;
 }
 
 export type User = PublicUser;
@@ -341,6 +347,8 @@ export interface Server {
   /** How old an account, and how long a membership, has to be to talk here. */
   verify_account_minutes?: number;
   verify_member_minutes?: number;
+  /** The server's own rules, written by whoever manages it; "" while it has none. */
+  rules: string;
   /** When the AutoMod rules members' apps apply last changed; 0 when there are none. */
   automod_at?: number;
   /** How many Pro accounts boost it; one or more lets every member send bigger files. */

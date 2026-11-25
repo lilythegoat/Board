@@ -46,6 +46,8 @@ function verbs(): Record<string, string> {
     member_kick: t("server.auditLog.verb.member_kick"),
     member_ban: t("server.auditLog.verb.member_ban"),
     member_unban: t("server.auditLog.verb.member_unban"),
+    ban_appeal_accepted: t("server.auditLog.verb.ban_appeal_accepted"),
+    ban_appeal_denied: t("server.auditLog.verb.ban_appeal_denied"),
     member_voice: t("server.auditLog.verb.member_voice"),
     emoji_create: t("server.auditLog.verb.emoji_create"),
     emoji_update: t("server.auditLog.verb.emoji_update"),

@@ -103,6 +103,8 @@ export const serverMenu = defineMenu<ServerMenuCtx>("server", [
       return { id: "mute", label: muted ? t("sidebar.serverMenu.unmuteServer") : t("sidebar.serverMenu.muteServer"), onSelect: () => toggleMuted(serverId) };
     }),
     button("serverNotifications", ({ serverId, openModal }) => !!serverOf(serverId) && { id: "notif", label: t("modals.serverNotifications.notificationSettings"), onSelect: () => openModal("serverNotifications", { serverId }) }),
+    // the server's rules, for every member to read (the page edits them only for whoever manages the server)
+    button("serverRules", ({ serverId, openModal }) => !!serverOf(serverId) && { id: "rules", label: t("serverRules.title"), onSelect: () => openModal("serverSettings", { serverId, page: "rules" }) }),
   ],
   [
     button("editServerProfile", ({ serverId, openModal }) => !!serverOf(serverId) && { id: "profile", label: t("sidebar.serverMenu.editServerProfile"), onSelect: () => openModal("settings", { page: "profiles", serverId }) }),
