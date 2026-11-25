@@ -32,9 +32,9 @@ const (
 	EventBadgePrefix  = "event:"        // given by staff: "event:<badge_defs id>"
 )
 
-// OGCutoff is the start of 2026-11-02 in Alaska (UTC-9): accounts made
-// before it, the day badges arrived, are OG.
-const OGCutoff int64 = 1793610000000
+// OGCutoff is the start of 2027-01-01 in Eastern time (UTC-5): accounts made
+// before it, the day Board's early members joined, are OG.
+const OGCutoff int64 = 1798779600000
 
 // AppDeveloperServers is how many servers, not the developer's own, one of
 // their bots must be in: a test app in their own server does not count.
