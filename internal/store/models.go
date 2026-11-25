@@ -405,6 +405,9 @@ type Server struct {
 	// Boosts is how many Pro accounts boost the server (api/billing.go);
 	// one or more lets every member send bigger files there.
 	Boosts int `json:"boosts"`
+	// Rules is the server's own rules, written by whoever manages it and
+	// read by its members: one block of text, or "" while it has none.
+	Rules string `json:"rules"`
 }
 
 // ServerPatch is an optional set of server changes.
@@ -425,6 +428,7 @@ type ServerPatch struct {
 	DiscoveryHidden      *bool
 	VerifyAccountMinutes *int
 	VerifyMemberMinutes  *int
+	Rules                *string
 }
 
 // Member is a user's membership in a server. Nickname, avatar, banner, bio

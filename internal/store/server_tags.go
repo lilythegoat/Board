@@ -32,7 +32,7 @@ const serverTagCols = `tag_text, tag_badge, tag_color, tag_roles, tag_invite`
 
 // serverCommunityCols are a server's invite pause, Discovery listing and
 // safety settings, read after serverTagCols.
-const serverCommunityCols = `invites_paused_until, discoverable, discovery_category, discovery_tags, discovery_language, discovery_since, discovery_hidden, verify_account_minutes, verify_member_minutes, automod_at, boosts, nsfw`
+const serverCommunityCols = `invites_paused_until, discoverable, discovery_category, discovery_tags, discovery_language, discovery_since, discovery_hidden, verify_account_minutes, verify_member_minutes, automod_at, boosts, nsfw, rules`
 
 // communityScan holds what serverCommunityCols scan into until it is put on a Server.
 type communityScan struct {
@@ -43,10 +43,11 @@ type communityScan struct {
 	automodAt                       int64
 	boosts                          int
 	nsfw                            int64
+	rules                           string
 }
 
 func (c *communityScan) dest() []any {
-	return []any{&c.paused, &c.discoverable, &c.category, &c.tags, &c.language, &c.since, &c.hidden, &c.verifyAccount, &c.verifyMembership, &c.automodAt, &c.boosts, &c.nsfw}
+	return []any{&c.paused, &c.discoverable, &c.category, &c.tags, &c.language, &c.since, &c.hidden, &c.verifyAccount, &c.verifyMembership, &c.automodAt, &c.boosts, &c.nsfw, &c.rules}
 }
 
 func (c *communityScan) apply(s *Server) {
@@ -65,6 +66,7 @@ func (c *communityScan) apply(s *Server) {
 	s.AutomodAt = c.automodAt
 	s.Boosts = c.boosts
 	s.NSFW = c.nsfw == 1
+	s.Rules = c.rules
 }
 
 // scanServerTagged reads serverCols followed by serverTagCols and serverCommunityCols.

@@ -366,6 +366,9 @@ func (s *Store) UpdateServer(ctx context.Context, id ids.ID, p ServerPatch) erro
 	if p.VerifyMemberMinutes != nil {
 		set("verify_member_minutes", *p.VerifyMemberMinutes)
 	}
+	if p.Rules != nil {
+		set("rules", *p.Rules)
+	}
 	if len(sets) == 0 {
 		return nil
 	}

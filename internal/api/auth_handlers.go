@@ -51,10 +51,25 @@ type MeUser struct {
 	// Nexa is the account's moderation standing, so the app knows about a
 	// ban before it tries to connect and a mute before it shows a composer.
 	Nexa *nexaState `json:"nexa,omitempty"`
+	// RulesVersion is which version of Board's rules the account has agreed
+	// to (0 for none yet): the app holds a new account at the rules step
+	// until it matches the version in force. RulesAcceptedAt is when it
+	// agreed, in ms; null for accounts stamped by migration 0055, which
+	// agreed to the Terms when they signed up.
+	RulesVersion    int    `json:"rules_version"`
+	RulesAcceptedAt *int64 `json:"rules_accepted_at"`
 }
 
 func (s *Server) meView(ctx context.Context, u *store.User) MeUser {
 	v := MeUser{PublicUser: u.Public(), Flags: u.Flags, PresencePref: u.PresencePref, DMPrivacy: u.DMPrivacy, HasRecovery: u.RecoveryAuthHash != ""}
+	if at, version, err := s.Store.RulesAcceptance(ctx, u.ID); err == nil {
+		v.RulesVersion = version
+		if at != 0 {
+			v.RulesAcceptedAt = &at
+		}
+	} else {
+		s.Log.Warn("rules: acceptance", "user", u.ID.String(), "err", err)
+	}
 	if m, err := s.Store.MFAFor(ctx, u.ID); err == nil && m != nil && m.Enabled {
 		v.MFAEnabled = true
 		if n, err := s.Store.BackupCodesLeft(ctx, u.ID); err == nil {

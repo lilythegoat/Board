@@ -423,6 +423,20 @@ func (s *Server) handleServerPatch(w http.ResponseWriter, r *http.Request) {
 		*dst = &n
 		changes[key] = n
 	}
+	if v, ok := raw["rules"]; ok {
+		var d string
+		if string(v) != "null" && json.Unmarshal(v, &d) != nil {
+			WriteError(w, E(http.StatusBadRequest, "invalid_rules", "Rules are malformed."))
+			return
+		}
+		clean, ok := CleanText(d, maxServerRules)
+		if !ok {
+			WriteError(w, E(http.StatusBadRequest, "invalid_rules", "Rules are at most 4000 characters."))
+			return
+		}
+		p.Rules = &clean
+		changes["rules"] = clean
+	}
 	if !s.discoveryPatch(w, raw, &p, changes) {
 		return
 	}
@@ -466,6 +480,9 @@ const maxPauseUntil = int64(32503680000000) // the year 3000
 
 // maxVerifyMinutes is the longest wait a server can ask of new accounts or members: 30 days.
 const maxVerifyMinutes = 30 * 24 * 60
+
+// maxServerRules is the longest a server's own rules may run, in characters.
+const maxServerRules = 4000
 
 func (s *Server) handleServerImage(kind string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
