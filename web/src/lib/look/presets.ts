@@ -33,6 +33,7 @@ interface Recipe {
 
 const RECIPES: Recipe[] = [
   { id: "nexa", nameKey: "look.presets.nexa", group: "dark", colours: { background: "#211a30", accent: "#8000ff", scheme: "dark" } },
+  { id: "board-purple", nameKey: "look.presets.boardPurple", group: "dark", colours: { background: "#1b0a2e", accent: "#8000ff", scheme: "dark" } },
   { id: "midnight", nameKey: "look.presets.midnight", group: "dark", colours: { background: "#151c2e", accent: "#4466ee", scheme: "dark" } },
   { id: "forest", nameKey: "look.presets.forest", group: "dark", colours: { background: "#18221d", accent: "#2e8052", scheme: "dark" } },
   { id: "rose", nameKey: "look.presets.rose", group: "dark", colours: { background: "#261b21", accent: "#c93d6b", scheme: "dark" } },
