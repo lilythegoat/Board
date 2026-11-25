@@ -5074,7 +5074,7 @@
   "nexa.loadOlder": "Load Older",
   "nexa.kind.notice": "Moderation Notice",
   "nexa.kind.update": "Update",
-  "nexa.kind.announcement": "Announcement",
+  "nexa.kind.announcement": "Board official announcement",
   "nexa.postedBy": "Posted by",
   "nexa.liftedMute": "Your mute (case #{number}) was lifted early by",
   "nexa.liftedBan": "Your ban (case #{number}) was lifted early by",
@@ -5410,8 +5410,8 @@
   "moderation.logs.thenNamed": "then @{name}",
   "moderation.ann.new": "New Announcement",
   "moderation.ann.hint": {
-    "one": "Goes to the Board conversation of the {count} person on Board, with your name on it.",
-    "other": "Goes to the Board conversation of all {count} people on Board, with your name on it."
+    "one": "Goes to the Board conversation of the {count} person on Board.",
+    "other": "Goes to the Board conversation of all {count} people on Board."
   },
   "moderation.ann.titleLabel": "Title (Optional)",
   "moderation.ann.titlePlaceholder": "What it's about",
@@ -5424,8 +5424,8 @@
   "moderation.ann.send": "Send to Everyone",
   "moderation.ann.confirmTitle": "Send This Announcement?",
   "moderation.ann.confirmBody": {
-    "one": "It will appear in the Board conversation of the {count} member, with your name on it.",
-    "other": "It will appear in the Board conversation of all {count} members, with your name on it."
+    "one": "It will appear in the Board conversation of the {count} member.",
+    "other": "It will appear in the Board conversation of all {count} members."
   },
   "moderation.ann.sent": "Announcement sent.",
   "moderation.ann.history": "Sent",

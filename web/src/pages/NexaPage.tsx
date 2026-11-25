@@ -213,9 +213,6 @@ function FeedEntry({ item, people, onOpen }: { item: Exclude<FeedItem, BugItem |
             <div className={s.announcementBody}>
               <Markdown source={item.announcement.body} ctx={ctx} />
             </div>
-            <div className={s.announcementFoot}>
-              {t("nexa.postedBy")} <PersonChip id={item.announcement.author_id} person={people[item.announcement.author_id]} size={18} withUsername />
-            </div>
           </div>
         ) : null}
       </div>

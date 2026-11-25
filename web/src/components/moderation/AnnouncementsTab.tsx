@@ -4,7 +4,7 @@ import { moderation as modApi, type Announcement, type People } from "@/api/mode
 import { Button } from "@/components/common/Button";
 import { Spinner } from "@/components/common/Spinner";
 import { Field, TextArea, TextInput } from "@/components/common/TextInput";
-import { NexaAvatar, PersonChip } from "@/components/nexa/NexaBits";
+import { NexaAvatar } from "@/components/nexa/NexaBits";
 import { describeError } from "@/lib/errors";
 import { useRenderCtx } from "@/lib/markdownCtx";
 import { fullDate } from "@/lib/moderation";
@@ -21,8 +21,8 @@ const MAX_BODY = 4000;
 
 /**
  * Messages to everyone on Nexa, sent through Nexa. Each lands in every
- * account's Nexa conversation with the name of whoever wrote it, and can be
- * taken back; the log keeps both.
+ * account's Nexa conversation posted as Board, with no author shown, and can
+ * be taken back; the log keeps both.
  */
 export function AnnouncementsTab() {
   const toast = useUI((u) => u.toast);
@@ -169,8 +169,6 @@ export function AnnouncementsTab() {
                     <Markdown source={a.body} ctx={ctx} />
                   </div>
                   <div className={m.annMeta}>
-                    <span>{t("nexa.postedBy")}</span>
-                    <PersonChip id={a.author_id} person={people[a.author_id]} size={18} withUsername />
                     <span>·</span>
                     <time title={fullDate(a.created_at)}>{formatTimestamp(a.created_at)}</time>
                   </div>
