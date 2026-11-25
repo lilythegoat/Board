@@ -5,7 +5,7 @@ app, desktop apps for Windows, macOS and Linux, and a native Android app.
 
 Try [Board in your browser](https://nexa.fish) or [download an app](https://nexa.fish/download).
 
-![Nexa's chat interface with a server, channels, messages and member list](web/public/home/app.png)
+![Board's chat interface with a server, channels, messages and member list](web/public/home/app.png)
 
 ## Features
 
@@ -31,7 +31,7 @@ encrypted. Account details, public profiles and server membership are also visib
 the server. Peer-to-peer calls reveal participants' IP addresses to each other; calls
 through the optional Cloudflare Realtime service avoid this.
 
-See [how Nexa's encryption works](ENCRYPTION.md) for key storage, password and
+See [how Board's encryption works](ENCRYPTION.md) for key storage, password and
 recovery protection, message encryption, bot access and the limits of E2EE.
 The [privacy policy](docs/legal/PRIVACY_POLICY.txt) covers data collection and retention.
 
@@ -43,22 +43,22 @@ npm, and Python 3 for the check scripts.
 Clone the repository:
 
 ```sh
-git clone https://github.com/lilythegoat/board.git
-cd board
+git clone https://github.com/lilythegoat/Board.git
+cd Board
 ```
 
 Build the web app and server into an isolated directory:
 
 ```sh
-nexa_run_dir="$(mktemp -d)"
-(cd web && npm ci && npx vite build --outDir "$nexa_run_dir/dist" --emptyOutDir)
-go build -o "$nexa_run_dir/chatd" ./cmd/chatd
+board_run_dir="$(mktemp -d)"
+(cd web && npm ci && npx vite build --outDir "$board_run_dir/dist" --emptyOutDir)
+go build -o "$board_run_dir/chatd" ./cmd/chatd
 ```
 
 Start the server from that directory:
 
 ```sh
-cd "$nexa_run_dir"
+cd "$board_run_dir"
 LISTEN=127.0.0.1:8080 PUBLIC_URL=http://localhost:8080 \
   WEB_DIST=./dist EGRESS_PROXY=off ./chatd
 ```
@@ -125,7 +125,7 @@ The [tools guide](tools/README.md) covers browser tests and screenshots.
 
 ## Documentation
 
-- [How Nexa's encryption works](ENCRYPTION.md)
+- [How Board's encryption works](ENCRYPTION.md)
 - [Building bots and apps](docs/bots.md)
 - [Plugin API](docs/plugins.md)
 - [Custom CSS](docs/custom-css.md)
@@ -135,7 +135,7 @@ The [tools guide](tools/README.md) covers browser tests and screenshots.
 
 ## Contributing
 
-Nexa is open to any type of contribution to the code. Bug fixes, new features,
+Board is open to any type of contribution to the code. Bug fixes, new features,
 tests, translations, documentation and accessibility improvements are welcome.
 Open an issue or pull request, and read [CLAUDE.md](CLAUDE.md) for development
 guidance. Keep personal data, credentials and signing keys out of contributions;
@@ -143,5 +143,5 @@ see [repository maintenance](docs/REPOSITORY.md).
 
 ## License
 
-[MIT](LICENSE). Copyright (c) 2026 terrydavisthe2nd / Nexa.
+[MIT](LICENSE). Copyright (c) 2026 Board.
 Third-party components retain their own licenses and notices.
