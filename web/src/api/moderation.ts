@@ -638,10 +638,10 @@ export const moderation = {
   badges(): Promise<{ badges: BadgeDef[]; contributors: number }> {
     return api.request("GET", "/moderation/badges");
   },
-  createBadge(b: { name: string; icon: string; color: number }): Promise<BadgeDef> {
+  createBadge(b: { name: string; icon: string; color: number; description: string }): Promise<BadgeDef> {
     return api.request("POST", "/moderation/badges", b);
   },
-  editBadge(id: Snowflake, b: { name: string; icon: string; color: number }): Promise<BadgeDef> {
+  editBadge(id: Snowflake, b: { name: string; icon: string; color: number; description: string }): Promise<BadgeDef> {
     return api.request("PATCH", `/moderation/badges/${id}`, b);
   },
   deleteBadge(id: Snowflake): Promise<void> {

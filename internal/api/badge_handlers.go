@@ -12,16 +12,16 @@ import (
 )
 
 // Profile badges (internal/store/badges.go): a person's own list with the
-// order and hidden set they chose, and what staff do: make event badges and
-// give them, and Contributor, by hand. Everyone else sees badges in a
+// order and hidden set they chose; the owner alone makes event badges, and
+// staff give them, and Contributor, by hand. Everyone else sees badges in a
 // profile's answer (handleUserProfile, handleSharedProfile).
 func (s *Server) badgeRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /api/v1/users/@me/badges", s.authed(s.handleMyBadges))
 	mux.Handle("PUT /api/v1/users/@me/badges", s.authed(s.handleMyBadgesPut))
 	mux.Handle("GET /api/v1/moderation/badges", s.staff(rankAdmin, s.handleModBadges))
-	mux.Handle("POST /api/v1/moderation/badges", s.staff(rankAdmin, s.handleModBadgeCreate))
-	mux.Handle("PATCH /api/v1/moderation/badges/{id}", s.staff(rankAdmin, s.handleModBadgeEdit))
-	mux.Handle("DELETE /api/v1/moderation/badges/{id}", s.staff(rankAdmin, s.handleModBadgeDelete))
+	mux.Handle("POST /api/v1/moderation/badges", s.staff(rankOwner, s.handleModBadgeCreate))
+	mux.Handle("PATCH /api/v1/moderation/badges/{id}", s.staff(rankOwner, s.handleModBadgeEdit))
+	mux.Handle("DELETE /api/v1/moderation/badges/{id}", s.staff(rankOwner, s.handleModBadgeDelete))
 	mux.Handle("GET /api/v1/moderation/users/{id}/badges", s.staff(rankAdmin, s.handleModUserBadges))
 	mux.Handle("PUT /api/v1/moderation/users/{id}/badges", s.staff(rankAdmin, s.handleModUserBadgesPut))
 }
@@ -82,12 +82,14 @@ func (s *Server) handleModBadges(w http.ResponseWriter, r *http.Request) {
 }
 
 type badgeDefBody struct {
-	Name  string `json:"name"`
-	Icon  string `json:"icon"`
-	Color int    `json:"color"`
+	Name        string `json:"name"`
+	Icon        string `json:"icon"`
+	Color       int    `json:"color"`
+	Description string `json:"description"`
 }
 
-// readBadgeDef reads and checks an event badge's name, icon and colour.
+// readBadgeDef reads and checks an event badge's name, icon, colour and
+// description (at most MaxBadgeDescription characters, one line).
 func readBadgeDef(w http.ResponseWriter, r *http.Request) (*store.BadgeDef, bool) {
 	var b badgeDefBody
 	if err := ReadJSON(w, r, &b, 4<<10); err != nil {
@@ -107,7 +109,12 @@ func readBadgeDef(w http.ResponseWriter, r *http.Request) (*store.BadgeDef, bool
 		WriteError(w, E(http.StatusBadRequest, "bad_color", "That colour is not valid."))
 		return nil, false
 	}
-	return &store.BadgeDef{Name: name, Icon: b.Icon, Color: b.Color}, true
+	desc, ok := textutil.CleanName(b.Description, store.MaxBadgeDescription)
+	if !ok {
+		WriteError(w, E(http.StatusBadRequest, "bad_description", "A badge description is at most 200 characters."))
+		return nil, false
+	}
+	return &store.BadgeDef{Name: name, Icon: b.Icon, Color: b.Color, Description: desc}, true
 }
 
 func (s *Server) handleModBadgeCreate(w http.ResponseWriter, r *http.Request) {

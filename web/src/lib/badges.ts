@@ -63,8 +63,8 @@ export function badgeLook(b: Badge): BadgeLook | null {
     case CONTRIBUTOR:
       return { tone: "contributor", Icon: Wrench, label: t("badges.contributor"), tip: t("badges.contributorTip") };
     default:
-      if (isEventBadge(b.id) && b.name) // a badge staff made says only its own name: what it is for is theirs to put in it
-      return { tone: "event", iconName: b.icon, color: b.color, label: b.name, tip: "" };
+      if (isEventBadge(b.id) && b.name) // a badge staff made says its own name, and what it is for in its description
+      return { tone: "event", iconName: b.icon, color: b.color, label: b.name, tip: b.description ?? "" };
       return null;
   }
 }

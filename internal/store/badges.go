@@ -56,26 +56,30 @@ type Badge struct {
 	Name  string `json:"name,omitempty"`
 	Icon  string `json:"icon,omitempty"`
 	Color *int   `json:"color,omitempty"`
+	// Description is an event badge's, what it is for; shown in its tooltip.
+	Description string `json:"description,omitempty"`
 	// Hidden is set only in a person's own list.
 	Hidden bool `json:"hidden,omitempty"`
 }
 
 // BadgeDef is a badge staff made for an event.
 type BadgeDef struct {
-	ID        ids.ID `json:"id"`
-	Name      string `json:"name"`
-	Icon      string `json:"icon"`
-	Color     int    `json:"color"`
-	CreatedBy ids.ID `json:"created_by"`
-	CreatedAt int64  `json:"created_at"`
-	Holders   int    `json:"holders"`
+	ID          ids.ID `json:"id"`
+	Name        string `json:"name"`
+	Icon        string `json:"icon"`
+	Color       int    `json:"color"`
+	Description string `json:"description"`
+	CreatedBy   ids.ID `json:"created_by"`
+	CreatedAt   int64  `json:"created_at"`
+	Holders     int    `json:"holders"`
 }
 
 // Limits on what staff make and what a person's preferences hold.
 const (
-	MaxBadgeName   = 32
-	maxBadgePrefs  = 128
-	maxBadgeIDText = 40
+	MaxBadgeName        = 32
+	MaxBadgeDescription = 200
+	maxBadgePrefs       = 128
+	maxBadgeIDText      = 40
 )
 
 var badgeIconRE = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
@@ -187,7 +191,7 @@ func (s *Store) earnedBadges(ctx context.Context, u *User, now time.Time) ([]Bad
 		for _, id := range events {
 			if d := defs[id]; d != nil {
 				color := d.Color
-				out = append(out, Badge{ID: EventBadgePrefix + id.String(), Name: d.Name, Icon: d.Icon, Color: &color})
+				out = append(out, Badge{ID: EventBadgePrefix + id.String(), Name: d.Name, Icon: d.Icon, Color: &color, Description: d.Description})
 			}
 		}
 	}
@@ -245,7 +249,7 @@ func (s *Store) badgeDefsByID(ctx context.Context, list []ids.ID) (map[ids.ID]*B
 	for i, id := range list {
 		args[i] = int64(id)
 	}
-	rows, err := s.db.R.QueryContext(ctx, `SELECT id, name, icon, color, created_by, created_at FROM badge_defs WHERE id IN (?`+strings.Repeat(",?", len(list)-1)+`)`, args...)
+	rows, err := s.db.R.QueryContext(ctx, `SELECT id, name, icon, color, description, created_by, created_at FROM badge_defs WHERE id IN (?`+strings.Repeat(",?", len(list)-1)+`)`, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -263,7 +267,7 @@ func (s *Store) badgeDefsByID(ctx context.Context, list []ids.ID) (map[ids.ID]*B
 func scanBadgeDef(sc interface{ Scan(...any) error }) (*BadgeDef, error) {
 	var d BadgeDef
 	var id, by int64
-	if err := sc.Scan(&id, &d.Name, &d.Icon, &d.Color, &by, &d.CreatedAt); err != nil {
+	if err := sc.Scan(&id, &d.Name, &d.Icon, &d.Color, &d.Description, &by, &d.CreatedAt); err != nil {
 		return nil, err
 	}
 	d.ID, d.CreatedBy = ids.ID(id), ids.ID(by)
@@ -395,7 +399,7 @@ func (s *Store) SetBadgePrefs(ctx context.Context, uid ids.ID, p BadgePrefs) err
 
 // BadgeDefs lists the event badges, newest first, with how many hold each.
 func (s *Store) BadgeDefs(ctx context.Context) ([]*BadgeDef, error) {
-	rows, err := s.db.R.QueryContext(ctx, `SELECT id, name, icon, color, created_by, created_at FROM badge_defs ORDER BY id DESC`)
+	rows, err := s.db.R.QueryContext(ctx, `SELECT id, name, icon, color, description, created_by, created_at FROM badge_defs ORDER BY id DESC`)
 	if err != nil {
 		return nil, err
 	}
@@ -449,7 +453,7 @@ func (s *Store) ContributorCount(ctx context.Context) (int, error) {
 
 // BadgeDef returns one event badge.
 func (s *Store) BadgeDef(ctx context.Context, id ids.ID) (*BadgeDef, error) {
-	d, err := scanBadgeDef(s.db.R.QueryRowContext(ctx, `SELECT id, name, icon, color, created_by, created_at FROM badge_defs WHERE id = ?`, int64(id)))
+	d, err := scanBadgeDef(s.db.R.QueryRowContext(ctx, `SELECT id, name, icon, color, description, created_by, created_at FROM badge_defs WHERE id = ?`, int64(id)))
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
@@ -459,13 +463,13 @@ func (s *Store) BadgeDef(ctx context.Context, id ids.ID) (*BadgeDef, error) {
 // CreateBadgeDef makes an event badge.
 func (s *Store) CreateBadgeDef(ctx context.Context, d *BadgeDef) error {
 	d.ID, d.CreatedAt = ids.New(), nowMs()
-	_, err := s.db.W.ExecContext(ctx, `INSERT INTO badge_defs (id, name, icon, color, created_by, created_at) VALUES (?,?,?,?,?,?)`, int64(d.ID), d.Name, d.Icon, d.Color, int64(d.CreatedBy), d.CreatedAt)
+	_, err := s.db.W.ExecContext(ctx, `INSERT INTO badge_defs (id, name, icon, color, description, created_by, created_at) VALUES (?,?,?,?,?,?,?)`, int64(d.ID), d.Name, d.Icon, d.Color, d.Description, int64(d.CreatedBy), d.CreatedAt)
 	return err
 }
 
-// UpdateBadgeDef changes an event badge's name, icon and colour.
+// UpdateBadgeDef changes an event badge's name, icon, colour and description.
 func (s *Store) UpdateBadgeDef(ctx context.Context, d *BadgeDef) error {
-	res, err := s.db.W.ExecContext(ctx, `UPDATE badge_defs SET name = ?, icon = ?, color = ? WHERE id = ?`, d.Name, d.Icon, d.Color, int64(d.ID))
+	res, err := s.db.W.ExecContext(ctx, `UPDATE badge_defs SET name = ?, icon = ?, color = ?, description = ? WHERE id = ?`, d.Name, d.Icon, d.Color, d.Description, int64(d.ID))
 	if err != nil {
 		return err
 	}

@@ -52,3 +52,33 @@ func TestBadgesStaffGiveAndHiddenStayHidden(t *testing.T) {
 		t.Error("a staff rank was hidden")
 	}
 }
+
+// Making a custom badge is the owner's alone (a mod cannot), and a badge
+// keeps the description it was made with, which the list shows to staff.
+func TestBadgesOwnerOnlyCreateAndDescription(t *testing.T) {
+	_, ts := newTestServer(t)
+	ownTok, _ := register(t, ts, "owner")
+	modTok, modID := register(t, ts, "mod")
+	if res, body := do(t, ts, "PATCH", "/api/v1/admin/users/"+modID, ownTok, map[string]any{"rank": "mod"}); res.StatusCode != 200 {
+		t.Fatalf("make mod: %d %v", res.StatusCode, body)
+	}
+	def := map[string]any{"name": "Halloween", "icon": "ghost", "color": 0xff7a45, "description": "For the Halloween event."}
+	if res, _ := do(t, ts, "POST", "/api/v1/moderation/badges", modTok, def); res.StatusCode != 403 {
+		t.Errorf("a mod made a badge: %d", res.StatusCode)
+	}
+	res, body := do(t, ts, "POST", "/api/v1/moderation/badges", ownTok, def)
+	if res.StatusCode != 200 {
+		t.Fatalf("owner create: %d %v", res.StatusCode, body)
+	}
+	if body["description"] != "For the Halloween event." {
+		t.Errorf("create lost the description: %v", body)
+	}
+	if res, _ := do(t, ts, "PATCH", "/api/v1/moderation/badges/"+body["id"].(string), modTok, def); res.StatusCode != 403 {
+		t.Errorf("a mod edited a badge: %d", res.StatusCode)
+	}
+	_, list := do(t, ts, "GET", "/api/v1/moderation/badges", modTok, nil)
+	badges := list["badges"].([]any)
+	if len(badges) != 1 || badges[0].(map[string]any)["description"] != "For the Halloween event." {
+		t.Errorf("list lost the description: %v", list)
+	}
+}

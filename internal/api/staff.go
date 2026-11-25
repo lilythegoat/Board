@@ -86,15 +86,15 @@ func (s *Server) rankOf(ctx context.Context, u *store.User) staffRank {
 func staffRankError(need staffRank) *Error {
 	switch need {
 	case rankOwner:
-		return E(http.StatusForbidden, "owner_only", "Only the owner of Nexa can do that.")
+		return E(http.StatusForbidden, "owner_only", "Only the owner of Board can do that.")
 	case rankDeveloper:
-		return E(http.StatusForbidden, "developer_only", "Only Nexa developers and the owner can do that.")
+		return E(http.StatusForbidden, "developer_only", "Only Board developers and the owner can do that.")
 	case rankAdmin:
-		return E(http.StatusForbidden, "staff_admin_only", "Only Nexa admins and above can do that.")
+		return E(http.StatusForbidden, "staff_admin_only", "Only Board admins and above can do that.")
 	case rankMod:
-		return E(http.StatusForbidden, "staff_mod_only", "Only Nexa mods and above can do that.")
+		return E(http.StatusForbidden, "staff_mod_only", "Only Board mods and above can do that.")
 	}
-	return E(http.StatusForbidden, "admin_only", "Only Nexa staff can do that.")
+	return E(http.StatusForbidden, "admin_only", "Only Board staff can do that.")
 }
 
 // staff gates a handler behind a staff rank.

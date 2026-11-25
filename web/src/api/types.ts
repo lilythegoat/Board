@@ -26,6 +26,8 @@ export interface Badge {
   name?: string;
   icon?: string;
   color?: number;
+  /** An event badge's description: what it is for, shown in its tooltip. */
+  description?: string;
   /** Only in the person's own list: they hid it from their profile. */
   hidden?: boolean;
 }
@@ -36,6 +38,8 @@ export interface BadgeDef {
   name: string;
   icon: string;
   color: number;
+  /** What the badge is for, shown in its tooltip. */
+  description: string;
   created_by: Snowflake;
   created_at: number;
   holders: number;

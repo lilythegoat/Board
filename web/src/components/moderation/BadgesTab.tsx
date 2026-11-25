@@ -7,9 +7,11 @@ import { Button } from "@/components/common/Button";
 import { ColourInput } from "@/components/common/ColourInput";
 import { LoadError } from "@/components/common/LoadError";
 import { Spinner } from "@/components/common/Spinner";
-import { Field, TextInput } from "@/components/common/TextInput";
+import { Field, TextArea, TextInput } from "@/components/common/TextInput";
 import { EVENT_COLOURS, EVENT_ICONS, EVENT_PREFIX, hexColour } from "@/lib/badges";
 import { describeError } from "@/lib/errors";
+import { useAuth } from "@/stores/auth";
+import { isOwner } from "@/lib/owner";
 import { useModEvents } from "@/stores/moderation";
 import { useUI } from "@/stores/ui";
 import { t } from "@/i18n";
@@ -19,21 +21,26 @@ import b from "./BadgesTab.module.css";
 const EventIcon = lazy(() => import("@/components/badges/EventIcon"));
 
 const MAX_NAME = 32;
+const MAX_DESCRIPTION = 200;
 const NOBODY = { id: "0", flags: 0, plan: "" as const };
 
 /**
- * The badges staff give by hand: Contributor, and the badges they make for an
- * event, each a name, a Lucide icon and a colour. They are given and taken on
- * a person's page (GrantBadgesModal); deleting one takes it from everyone.
+ * The badges staff give by hand: Contributor, and the badges the owner makes
+ * for an event, each a name, a Lucide icon, a colour and a description of
+ * what it is for. They are given and taken on a person's page
+ * (GrantBadgesModal); deleting one takes it from everyone.
  */
 export function BadgesTab() {
   const toast = useUI((u) => u.toast);
   const openModal = useUI((u) => u.openModal);
+  // only the owner makes custom badges; anyone on the panel can see them
+  const owner = isOwner(useAuth((a) => a.me?.id));
   const [list, setList] = useState<BadgeDef[] | null>(null);
   const [contributors, setContributors] = useState(0);
   const [failed, setFailed] = useState(false);
   const [editing, setEditing] = useState<BadgeDef | null>(null);
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [icon, setIcon] = useState<string>(EVENT_ICONS[0]);
   const [colour, setColour] = useState(EVENT_COLOURS[0]!);
   const [busy, setBusy] = useState(false);
@@ -57,16 +64,18 @@ export function BadgesTab() {
   const startEdit = (d: BadgeDef | null) => {
     setEditing(d);
     setName(d?.name ?? "");
+    setDescription(d?.description ?? "");
     setIcon(d?.icon ?? EVENT_ICONS[0]);
     setColour(d?.color ?? EVENT_COLOURS[0]!);
   };
   const nameLength = [...name.trim()].length;
-  const ready = nameLength > 0 && nameLength <= MAX_NAME;
+  const descriptionLength = [...description.trim()].length;
+  const ready = nameLength > 0 && nameLength <= MAX_NAME && descriptionLength <= MAX_DESCRIPTION;
 
   const submit = async () => {
     setBusy(true);
     try {
-      const body = { name: name.trim(), icon, color: colour };
+      const body = { name: name.trim(), icon, color: colour, description: description.trim() };
       if (editing) {
         const d = await modApi.editBadge(editing.id, body);
         setList((cur) => cur?.map((x) => (x.id === d.id ? { ...d, holders: x.holders } : x)) ?? cur);
@@ -102,10 +111,11 @@ export function BadgesTab() {
       },
     });
 
-  const preview = { id: `${EVENT_PREFIX}0`, name: name.trim() || t("badges.staff.namePlaceholder"), icon, color: colour };
+  const preview = { id: `${EVENT_PREFIX}0`, name: name.trim() || t("badges.staff.namePlaceholder"), icon, color: colour, description: description.trim() };
   return (
     <div className={m.scroll} data-testid="badges-tab">
       <div className={m.annLayout}>
+        {owner ? (
         <section className={m.panel} aria-labelledby="badge-form">
           <h2 className={m.panelTitle} id="badge-form">
             <Award size={18} aria-hidden="true" />
@@ -118,6 +128,9 @@ export function BadgesTab() {
             </div>
             <Field label={t("badges.staff.name")} hint={nameLength > MAX_NAME - 8 ? `${nameLength}/${MAX_NAME}` : undefined}>
               <TextInput value={name} onChange={(e) => setName(e.target.value)} placeholder={t("badges.staff.namePlaceholder")} maxLength={MAX_NAME + 8} data-testid="badge-name" />
+            </Field>
+            <Field label={t("badges.staff.description")} hint={descriptionLength > MAX_DESCRIPTION - 20 ? `${descriptionLength}/${MAX_DESCRIPTION}` : undefined}>
+              <TextArea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("badges.staff.descriptionPlaceholder")} rows={2} maxLength={MAX_DESCRIPTION + 8} data-testid="badge-description" />
             </Field>
             <div>
               <span className={b.label} id="badge-icon-label">{t("badges.staff.icon")}</span>
@@ -155,6 +168,15 @@ export function BadgesTab() {
             </div>
           </div>
         </section>
+        ) : (
+        <section className={m.panel} aria-labelledby="badge-form">
+          <h2 className={m.panelTitle} id="badge-form">
+            <Award size={18} aria-hidden="true" />
+            {t("badges.staff.new")}
+          </h2>
+          <p className={m.panelHint}>{t("badges.staff.ownerOnly")}</p>
+        </section>
+        )}
 
         <section aria-labelledby="badge-list">
           <h2 className={m.panelTitle} id="badge-list" style={{ marginBottom: 12 }}>
@@ -173,8 +195,10 @@ export function BadgesTab() {
               </li>
               {list.map((d) => (
                 <li key={d.id} className={b.row} data-editing={editing?.id === d.id || undefined} data-testid="badge-def">
-                  <BadgePill badge={{ id: `${EVENT_PREFIX}${d.id}`, name: d.name, icon: d.icon, color: d.color }} user={NOBODY} still named />
+                  <BadgePill badge={{ id: `${EVENT_PREFIX}${d.id}`, name: d.name, icon: d.icon, color: d.color, description: d.description }} user={NOBODY} still named />
                   <span className={b.meta}>{t("badges.staff.holders", { count: d.holders })}</span>
+                  {d.description ? <span className={b.note}>{d.description}</span> : null}
+                  {owner ? (
                   <span className={b.tools}>
                     <Button size="sm" variant="ghost" onClick={() => startEdit(d)} aria-label={t("badges.staff.editNamed", { name: d.name })} title={t("badges.staff.edit")}>
                       <PenLine size={15} aria-hidden="true" />
@@ -183,6 +207,7 @@ export function BadgesTab() {
                       <Trash2 size={15} aria-hidden="true" />
                     </Button>
                   </span>
+                  ) : null}
                 </li>
               ))}
               {list.length === 0 ? <li className={b.empty}>{t("badges.staff.none")}</li> : null}
