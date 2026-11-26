@@ -34,8 +34,9 @@ export default function CookiesPage() {
 
       <div className={s.section}>
         <h2 className={s.sectionTitle}>{t("cookies.earnTitle")}</h2>
-        <div className={s.item}>
-          <span>{t("cookies.earnDaily")}</span>
+        <div className={s.dailyCard}>
+          <span className={s.dailyEmoji}>🎁</span>
+          <span className={s.dailyText}>{t("cookies.earnDaily")}</span>
           {cookies?.can_claim_daily ? (
             <button type="button" className={s.claim} onClick={() => void claim()}>
               {t("cookies.dailyClaim")} · +50 🍪
@@ -44,21 +45,30 @@ export default function CookiesPage() {
             <span className={s.claimed}>{t("cookies.dailyClaimed")}</span>
           )}
         </div>
-        <div className={s.item}>{t("cookies.earnChat")}</div>
-        <div className={s.item}>{t("cookies.earnEvent")}</div>
+        <div className={s.item}>
+          <span className={s.itemEmoji}>💬</span>
+          <span>{t("cookies.earnChat")}</span>
+        </div>
+        <div className={s.item}>
+          <span className={s.itemEmoji}>🎉</span>
+          <span>{t("cookies.earnEvent")}</span>
+        </div>
       </div>
 
       <div className={s.section}>
         <h2 className={s.sectionTitle}>{t("cookies.spendTitle")}</h2>
         <div className={s.item}>
+          <span className={s.itemEmoji}>🏅</span>
           <span>{t("cookies.spendBadge")}</span>
           <span className={s.price}>🍪 50</span>
         </div>
         <div className={s.item}>
+          <span className={s.itemEmoji}>🎨</span>
           <span>{t("cookies.spendTheme")}</span>
           <span className={s.price}>🍪 200</span>
         </div>
         <div className={s.item}>
+          <span className={s.itemEmoji}>🚀</span>
           <span>{t("cookies.spendBoost")}</span>
           <span className={s.price}>🍪 500</span>
         </div>
