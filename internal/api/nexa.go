@@ -363,7 +363,7 @@ func (s *Server) handleNexa(w http.ResponseWriter, r *http.Request) {
 // case, a lifted mute or ban, an announcement, a bug report they sent, or a
 // reply or a change of status in one.
 type feedItem struct {
-	Kind         string            `json:"kind"` // notice | lift | announcement | bug | bug_reply | bug_status | report | report_outcome
+	Kind         string            `json:"kind"` // notice | lift | announcement | bug | bug_reply | bug_status | report | report_outcome | welcome
 	At           int64             `json:"at"`
 	Case         *memberCase       `json:"case,omitempty"`
 	Announcement *announcementView `json:"announcement,omitempty"`
@@ -374,6 +374,8 @@ type feedItem struct {
 	// Report is a safety report the member sent (its receipt: never staff
 	// notes), for report and report_outcome.
 	Report map[string]any `json:"report,omitempty"`
+	// Body is the welcome's text, for kind welcome.
+	Body string `json:"body,omitempty"`
 }
 
 // announcementView is an announcement as anyone sees it; the author is in the
@@ -494,6 +496,12 @@ func (s *Server) handleNexaFeed(w http.ResponseWriter, r *http.Request) {
 			who = append(who, it.Message.AuthorID)
 		}
 	}
+	// Board's welcome to a new account: the first thing in their Board
+	// conversation, until they have read it. It goes on after the page is
+	// cut, so it never pushes a real item off the page.
+	if pending, err := s.Store.WelcomePending(ctx, me.ID); err == nil && pending && keep(me.CreatedAt) {
+		items = append(items, feedItem{Kind: "welcome", At: me.CreatedAt, Body: welcomeMessageBody})
+	}
 	WriteJSON(w, http.StatusOK, map[string]any{"items": items, "has_more": more, "people": s.people(ctx, who...)})
 }
 
@@ -519,6 +527,8 @@ func (s *Server) handleNexaSeen(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, err)
 		return
 	}
+	// reading the conversation reads the welcome too
+	_ = s.Store.SetWelcomePending(r.Context(), me.ID, false)
 	s.emitNexaState(r.Context(), me.ID)
 	w.WriteHeader(http.StatusNoContent)
 }

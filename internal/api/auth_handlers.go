@@ -245,6 +245,8 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, err)
 		return
 	}
+	// A new account joins Board Headquarters and gets Board's welcome.
+	s.onboardNewAccount(ctx, u)
 	if signupInvite != "" {
 		if err := s.Store.SetSignupInvite(ctx, u.ID, signupInvite); err != nil {
 			// the account exists; its join will just spend a use of its own

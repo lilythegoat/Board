@@ -690,6 +690,11 @@ func (s *Server) handleServerLeave(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, E(http.StatusBadRequest, "owner_cannot_leave", "Transfer ownership or delete the server first."))
 		return
 	}
+	// Board Headquarters is home: everyone who joins Board stays in it.
+	if srv.Name == headquartersName {
+		WriteError(w, E(http.StatusForbidden, "headquarters_no_leave", "Board Headquarters is home: everyone who joins Board stays in it."))
+		return
+	}
 	if err := s.removeMember(r, srv, me.ID, "member_remove", map[string]any{"reason": "leave"}); err != nil {
 		WriteError(w, err)
 		return

@@ -276,6 +276,12 @@ func (s *Store) ServerByID(ctx context.Context, id ids.ID) (*Server, error) {
 	return scanServerTagged(s.db.R.QueryRowContext(ctx, `SELECT `+serverCols+`, `+serverTagCols+`, `+serverCommunityCols+` FROM servers WHERE id = ?`, int64(id)))
 }
 
+// ServerByName loads a server by its name, or ErrNotFound when no server
+// has it. Names are not unique; the oldest one wins.
+func (s *Store) ServerByName(ctx context.Context, name string) (*Server, error) {
+	return scanServerTagged(s.db.R.QueryRowContext(ctx, `SELECT `+serverCols+`, `+serverTagCols+`, `+serverCommunityCols+` FROM servers WHERE name = ? ORDER BY id LIMIT 1`, name))
+}
+
 // ServersForUser lists the servers a user belongs to, oldest membership first.
 func (s *Store) ServersForUser(ctx context.Context, uid ids.ID) ([]*Server, error) {
 	rows, err := s.db.R.QueryContext(ctx, `SELECT `+prefixed("s", serverCols)+`, `+prefixed("s", serverTagCols)+`, `+prefixed("s", serverCommunityCols)+` FROM servers s JOIN server_members m ON m.server_id = s.id WHERE m.user_id = ? ORDER BY m.joined_at, s.id`, int64(uid))

@@ -1237,18 +1237,20 @@ func (s *Store) NexaUnread(ctx context.Context, uid ids.ID, createdAt int64) (in
 		(SELECT count(*) FROM mod_announcements WHERE created_at > ? AND created_at >= ?) +
 		(SELECT count(*) FROM mod_messages m JOIN mod_cases c ON c.id = m.case_id WHERE c.user_id = ? AND m.kind = 'staff' AND m.id > c.member_read_id) +
 		(SELECT count(*) FROM bug_messages m JOIN bug_reports r ON r.id = m.report_id WHERE r.user_id = ? AND `+bugNews+` AND m.id > r.member_read_id) +
-		(SELECT count(*) FROM safety_reports WHERE reporter_id = ? AND outcome_at > ?)`,
-		int64(uid), seen, int64(uid), seen, seen, createdAt, int64(uid), int64(uid), int64(uid), seen).Scan(&n)
+		(SELECT count(*) FROM safety_reports WHERE reporter_id = ? AND outcome_at > ?) +
+		(SELECT CASE WHEN welcome_pending = 1 THEN 1 ELSE 0 END FROM users WHERE id = ?)`,
+		int64(uid), seen, int64(uid), seen, seen, createdAt, int64(uid), int64(uid), int64(uid), seen, int64(uid)).Scan(&n)
 	return n, err
 }
 
 // NexaLatest is when Nexa last had something for the member (0: never): a
 // notice, a lift, an announcement, a staff reply in one of their cases, a bug
-// report they sent, or a staff reply or status change in one. It decides
+// report they sent, a staff reply or status change in one, or Board's
+// welcome still waiting. It decides
 // whether their Nexa conversation shows at all, where it sorts among their
 // conversations, and whether one they closed comes back.
 func (s *Store) NexaLatest(ctx context.Context, uid ids.ID, createdAt int64) (int64, error) {
-	var a, b, c, d, e, f, g, h sql.NullInt64
+	var a, b, c, d, e, f, g, h, i sql.NullInt64
 	err := s.db.R.QueryRowContext(ctx, `SELECT
 		(SELECT max(created_at) FROM mod_cases WHERE user_id = ?),
 		(SELECT max(lifted_at) FROM mod_cases WHERE user_id = ?),
@@ -1257,9 +1259,10 @@ func (s *Store) NexaLatest(ctx context.Context, uid ids.ID, createdAt int64) (in
 		(SELECT max(created_at) FROM bug_reports WHERE user_id = ?),
 		(SELECT max(m.created_at) FROM bug_messages m JOIN bug_reports r ON r.id = m.report_id WHERE r.user_id = ? AND `+bugNews+`),
 		(SELECT max(created_at) FROM safety_reports WHERE reporter_id = ?),
-		(SELECT max(outcome_at) FROM safety_reports WHERE reporter_id = ?)`,
-		int64(uid), int64(uid), createdAt, int64(uid), int64(uid), int64(uid), int64(uid), int64(uid)).Scan(&a, &b, &c, &d, &e, &f, &g, &h)
-	return max(a.Int64, b.Int64, c.Int64, d.Int64, e.Int64, f.Int64, g.Int64, h.Int64), err
+		(SELECT max(outcome_at) FROM safety_reports WHERE reporter_id = ?),
+		(SELECT created_at FROM users WHERE id = ? AND welcome_pending = 1)`,
+		int64(uid), int64(uid), createdAt, int64(uid), int64(uid), int64(uid), int64(uid), int64(uid), int64(uid)).Scan(&a, &b, &c, &d, &e, &f, &g, &h, &i)
+	return max(a.Int64, b.Int64, c.Int64, d.Int64, e.Int64, f.Int64, g.Int64, h.Int64, i.Int64), err
 }
 
 // --- accounts -------------------------------------------------------------------
