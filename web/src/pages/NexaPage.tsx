@@ -142,7 +142,7 @@ export default function NexaPage() {
                 </FeedFrame>
               </Fragment>
             ) : (
-              <Fragment key={rest.kind === "announcement" ? `a${rest.announcement.id}` : `${rest.kind}${rest.case.id}`}>
+              <Fragment key={rest.kind === "announcement" ? `a${rest.announcement.id}` : rest.kind === "welcome" ? "welcome" : `${rest.kind}${rest.case.id}`}>
                 {day}
                 <FeedEntry item={rest} people={people} onOpen={(id) => nav(`/channels/@me/nexa/cases/${id}`)} />
               </Fragment>
@@ -180,7 +180,7 @@ function FeedFrame({ kind, kindLabel, at, children }: { kind: string; kindLabel:
 
 function FeedEntry({ item, people, onOpen }: { item: Exclude<FeedItem, BugItem | ReportItem>; people: People; onOpen: (caseId: string) => void }) {
   const ctx = useRenderCtx();
-  const kind = item.kind === "announcement" ? t("nexa.kind.announcement") : item.kind === "lift" ? t("nexa.kind.update") : t("nexa.kind.notice");
+  const kind = item.kind === "announcement" ? t("nexa.kind.announcement") : item.kind === "lift" ? t("nexa.kind.update") : item.kind === "welcome" ? t("nexa.kind.welcome") : t("nexa.kind.notice");
   return (
     <article className={s.feedItem} data-kind={item.kind} data-testid={`nexa-item-${item.kind}`}>
       <NexaAvatar size={40} />
@@ -213,6 +213,11 @@ function FeedEntry({ item, people, onOpen }: { item: Exclude<FeedItem, BugItem |
             <div className={s.announcementBody}>
               <Markdown source={item.announcement.body} ctx={ctx} />
             </div>
+          </div>
+        ) : null}
+        {item.kind === "welcome" ? (
+          <div className={s.announcementBody}>
+            <Markdown source={item.body} ctx={ctx} />
           </div>
         ) : null}
       </div>

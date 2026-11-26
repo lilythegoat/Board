@@ -3,7 +3,7 @@ import { useMediaAnimation } from "@/lib/mediaAnimation";
 import { touchFirst } from "@/lib/touch";
 import { NexaProfile } from "@/components/nexa/NexaProfile";
 import { isSystemAccount } from "@/lib/moderation";
-import { CirclePlus, Link2, LoaderCircle, Maximize2, MessageCircle, MoreHorizontal, NotebookPen, Pencil, Plus, SendHorizontal, UserPlus, X } from "lucide-react";
+import { CirclePlus, Cookie, Link2, LoaderCircle, Maximize2, MessageCircle, MoreHorizontal, NotebookPen, Pencil, Plus, SendHorizontal, UserPlus, X } from "lucide-react";
 import { apps as appsApi, type AppSummary } from "@/api/apps";
 import { HookTags } from "@/components/chat/webhook/HookHeader";
 import { isBot } from "@/lib/botCopies";
@@ -12,6 +12,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ApiError } from "@/api/client";
 import { dmOpenError } from "@/lib/errors";
 import { channels as channelsApi } from "@/api/channels";
+import { cookies as cookiesApi } from "@/api/cookies";
 import { relationships as relApi } from "@/api/relationships";
 import { sendFriendRequest, useBusyWith } from "@/lib/friendship";
 import type { Badge, PublicUser } from "@/api/types";
@@ -37,6 +38,7 @@ import { useRenderCtx } from "@/lib/markdownCtx";
 import { Markdown } from "@/markdown";
 import { useAuth } from "@/stores/auth";
 import { useChannels } from "@/stores/channels";
+import { useCookies } from "@/stores/cookies";
 import { activitiesOf, customStatus, statusOf, usePresence } from "@/stores/presence";
 import { useRelationships } from "@/stores/relationships";
 import { canI, memberHighest, rolesByPosition, useServers } from "@/stores/servers";
@@ -592,6 +594,26 @@ export function ProfileCard({ userId, variant, onClose, preview, previewWidgets,
   };
 
   const shownName = friend && rel.nickname ? rel.nickname : user.display_name;
+  // Giving Cookies: an amount the giver picks (10, 50 or 100, or any
+  // amount up to 10,000). The server checks the balance; the owner gives
+  // from unlimited Cookies.
+  const giveCookies = async () => {
+    const values = await promptFields({ title: t("cookies.giveTitle", { name: shownName || user.username }), fields: [{ key: "amount", label: t("cookies.giveAmount"), initial: "50", placeholder: "50", maxLength: 5, hint: t("cookies.giveHint") }], confirmLabel: t("cookies.give") });
+    const raw = values?.["amount"]?.trim();
+    if (!raw) return;
+    const amount = Number(raw);
+    if (!Number.isInteger(amount) || amount < 1 || amount > 10000) {
+      toast(t("cookies.giveInvalid"), "error");
+      return;
+    }
+    try {
+      await cookiesApi.give(userId, amount);
+      void useCookies.getState().load().catch(() => undefined);
+      toast(t("cookies.given", { amount, name: shownName || user.username }), "success");
+    } catch (err) {
+      toast(err instanceof ApiError ? err.message : t("cookies.giveFailed"), "error");
+    }
+  };
   const ownLook = withOwn(undefined, user.name_style);
   const styledName = ownLook ? <span className={nameClass(ownLook)} style={nameStyle(ownLook)} data-testid="profile-styled-name">{shownName}</span> : shownName;
   const mutualServers = mutual.servers.filter((id) => servers[id]);
@@ -675,6 +697,7 @@ export function ProfileCard({ userId, variant, onClose, preview, previewWidgets,
                 {busy ? <LoaderCircle size={18} className={s.spin} /> : <UserPlus size={18} />}
               </BannerButton>
             ) : null}
+            {!isMe && !bot ? <BannerButton label={t("cookies.give")} onClick={() => void giveCookies()} testId="profile-give-cookies"><Cookie size={18} /></BannerButton> : null}
             <BannerButton label={t("profile.profileCard.viewFullProfile")} onClick={() => viewFull()} testId="profile-full"><Maximize2 size={16} /></BannerButton>
             {!isMe ? <BannerButton label={t("chat.chat.more")} onClick={more} testId="profile-more"><MoreHorizontal size={18} /></BannerButton> : null}
           </>
@@ -830,6 +853,11 @@ export function ProfileCard({ userId, variant, onClose, preview, previewWidgets,
       {buttons ? (
         <div className={s.actions}>
           {primary}
+          {!isMe && !bot && rel?.type !== "blocked" ? (
+            <button className={s.pill} onClick={() => void giveCookies()} data-testid="profile-give-cookies">
+              <Cookie size={16} aria-hidden="true" /> {t("cookies.give")}
+            </button>
+          ) : null}
           {!isMe && !rel ? (
             <Tooltip text={t("profile.profileCard.message")} side="top">
               <button className={s.square} aria-label={t("profile.profileCard.message")} onClick={() => void message()}><MessageCircle size={18} /></button>

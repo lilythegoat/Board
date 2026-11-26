@@ -54,6 +54,8 @@ async function boostServer(serverId: string, name: string): Promise<void> {
 const leaveButton = button<ServerMenuCtx>("leaveServer", ({ serverId, nav, openModal }) => {
   const st = serverOf(serverId);
   if (!st || st.server.owner_id === useAuth.getState().me?.id) return null;
+  // Board Headquarters is home: everyone who joins Board stays in it.
+  if (st.server.name === "Board Headquarters") return null;
   return {
     id: "leave",
     label: t("sidebar.serverMenu.leaveServer"),

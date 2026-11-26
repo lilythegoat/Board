@@ -55,3 +55,23 @@
 .price {
   font-weight: 700;
 }
+
+.claim {
+  background: #8000ff;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.claim:hover {
+  filter: brightness(1.15);
+}
+
+.claimed {
+  opacity: 0.7;
+  font-size: 14px;
+}
