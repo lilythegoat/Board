@@ -225,6 +225,8 @@ export interface Announcement {
 export type FeedItem =
   | { kind: "notice" | "lift"; at: number; case: MemberCase }
   | { kind: "announcement"; at: number; announcement: Announcement }
+  /** Board's welcome to a new account, the first thing in their Board conversation. */
+  | { kind: "welcome"; at: number; body: string }
   /** A bug report the member sent. */
   | { kind: "bug"; at: number; bug: MemberBug }
   /** A staff reply in one of the member's bug reports, or a change of its status. */

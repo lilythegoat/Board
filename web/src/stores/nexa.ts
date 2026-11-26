@@ -96,6 +96,8 @@ function feedKey(it: FeedItem): string {
     case "report":
     case "report_outcome":
       return `${it.kind}:${it.report.id}`;
+    case "welcome":
+      return "welcome";
     default:
       return `${it.kind}:${it.case.id}`;
   }
