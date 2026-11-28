@@ -763,6 +763,9 @@ func (s *Server) handleMessageEdit(w http.ResponseWriter, r *http.Request) {
 			WriteError(w, err)
 			return
 		}
+		// Every content edit leaves a line in the message's history, so the
+		// edit history view can show when it changed and who changed it.
+		_ = s.Store.RecordMessageEdit(r.Context(), mid, me.ID)
 		// new words are held to Embed Links as new messages are
 		if flags := s.embedFlags(r.Context(), me, ch, m.Flags); flags != m.Flags {
 			if err := s.Store.SetMessageFlags(r.Context(), mid, flags); err != nil {
