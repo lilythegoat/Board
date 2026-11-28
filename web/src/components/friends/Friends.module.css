@@ -134,3 +134,23 @@
 .selectBtn:hover { color: var(--text-strong); background: var(--bg-hover); }
 .row[data-picked] { background: color-mix(in srgb, var(--brand) 14%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand) 30%, transparent); }
 @media (pointer: coarse) { .selectBtn { padding: 10px 12px; margin-block: -8px; } }
+
+/* a worn avatar item sits on the corner of the picture */
+.avatarWrap {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+.itemBadge {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  font-size: 13px;
+  line-height: 1;
+  background: #1b0a2e;
+  border: 1px solid rgba(128, 0, 255, 0.5);
+  border-radius: 50%;
+  padding: 2px;
+  pointer-events: none;
+}

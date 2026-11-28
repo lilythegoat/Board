@@ -1,5 +1,6 @@
 import { ChevronUp, CirclePlus, Mic, SendHorizontal, Smile, X, Eye, EyeOff, Trash2, Timer, Type, File as FileIcon } from "lucide-react";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type KeyboardEvent, type SyntheticEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { flushSync } from "react-dom";
 import { lazyPage } from "@/lib/lazyChunk";
 import type { Channel } from "@/api/types";
@@ -162,6 +163,7 @@ function phoneKeyboard(): boolean {
   return typeof window !== "undefined" && !!window.matchMedia?.("(pointer: coarse) and (max-width: 767px)").matches;
 }
 export function Composer({ channel }: { channel: Channel }) {
+  const nav = useNavigate();
   const me = useAuth((a) => a.me);
   const users = useUsers((u) => u.byId);
   const rels = useRelationships((r) => r.byUser);
@@ -701,6 +703,12 @@ export function Composer({ channel }: { channel: Channel }) {
       return false;
     }
     const cmd = runCommand(body);
+    if (cmd.kind === "boardai") {
+      // Board AI answers in its own page, never as a chat message
+      clearForSend(channel.id);
+      nav(`/channels/@me/board-ai?q=${encodeURIComponent(cmd.question)}`);
+      return true;
+    }
     if (cmd.kind === "plugin") {
       // a plugin's command: the box empties at once, and whatever it answers is sent as the message
       const channelId = channel.id;

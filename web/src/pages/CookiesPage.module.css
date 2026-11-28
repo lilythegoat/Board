@@ -137,3 +137,111 @@
   margin-left: auto;
   flex: none;
 }
+
+/* level & XP card, under the balance card */
+.levelCard {
+  background: rgba(128, 0, 255, 0.08);
+  border: 1px solid rgba(128, 0, 255, 0.25);
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 24px;
+}
+
+.levelTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.levelBadge {
+  background: #8000ff;
+  color: #fff;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.levelXp {
+  font-weight: 700;
+  margin-left: auto;
+}
+
+.levelBar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(128, 0, 255, 0.15);
+  overflow: hidden;
+}
+
+.levelFill {
+  height: 100%;
+  background: linear-gradient(90deg, #a855f7, #8000ff);
+  border-radius: 999px;
+}
+
+.levelSub {
+  margin-top: 8px;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+/* the shop: a real buy button on every item */
+.shopName {
+  display: block;
+  font-weight: 700;
+}
+
+.shopDesc {
+  display: block;
+  opacity: 0.75;
+  font-size: 13px;
+}
+
+.buy {
+  background: #8000ff;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-left: auto;
+  flex: none;
+}
+
+.buy:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* the leaderboard */
+.leaderRow {
+  background: rgba(128, 0, 255, 0.06);
+  border: 1px solid rgba(128, 0, 255, 0.18);
+  border-radius: 16px;
+  padding: 10px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.leaderRank {
+  font-weight: 800;
+  color: #a855f7;
+  width: 24px;
+  text-align: center;
+  flex: none;
+}
+
+.leaderName {
+  font-weight: 700;
+  flex: 1;
+}
+
+.empty {
+  opacity: 0.7;
+}

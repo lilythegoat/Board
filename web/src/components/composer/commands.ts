@@ -19,7 +19,7 @@ export interface PluginCommand {
   run: (args: string, channelId: string) => Promise<string | null>;
 }
 const pluginCommands = new Map<string, PluginCommand>();
-const BUILT_IN = new Set(["shrug", "tableflip", "unflip", "lenny", "me", "spoiler"]);
+const BUILT_IN = new Set(["shrug", "tableflip", "unflip", "lenny", "me", "spoiler", "boardai"]);
 
 /** Adds a plugin's command; false when the name is taken. */
 export function registerPluginCommand(c: PluginCommand): boolean {
@@ -57,6 +57,7 @@ export function commands() {
   { name: "lenny", desc: t("composer.commands.appendsToYourMessage3") },
   { name: "me", desc: t("composer.commands.displaysTextWithEmphasis") },
   { name: "spoiler", desc: t("composer.commands.marksYourMessageAsASpoiler") },
+  { name: "boardai", desc: t("composer.commands.askBoardAi") },
   ...[...pluginCommands.values()].map((c) => ({ name: c.name, desc: c.desc })),
 ];
 }
@@ -72,7 +73,7 @@ export function commands() {
  * The last two used to be published as they were typed, so "/ban someone"
  * landed in the channel for everyone to read.
  */
-export type CommandResult = { kind: "text" } | { kind: "command"; text: string } | { kind: "unknown"; name: string } | { kind: "empty"; name: string } | { kind: "plugin"; name: string; run: (channelId: string) => Promise<string | null> };
+export type CommandResult = { kind: "text" } | { kind: "command"; text: string } | { kind: "unknown"; name: string } | { kind: "empty"; name: string } | { kind: "boardai"; question: string } | { kind: "plugin"; name: string; run: (channelId: string) => Promise<string | null> };
 
 export function runCommand(text: string): CommandResult {
   // names a plugin can give: letters, digits, - and _
@@ -84,6 +85,8 @@ export function runCommand(text: string): CommandResult {
   if (k) return { kind: "command", text: rest ? `${rest} ${k}` : k };
   if (cmd === "me") return rest ? { kind: "command", text: `*${rest}*` } : { kind: "empty", name: cmd };
   if (cmd === "spoiler") return rest ? { kind: "command", text: `||${rest}||` } : { kind: "empty", name: cmd };
+  // Board AI answers from its own knowledge base; it never sends as a message
+  if (cmd === "boardai") return rest ? { kind: "boardai", question: rest } : { kind: "empty", name: cmd };
   const fromPlugin = pluginCommands.get(cmd);
   if (fromPlugin) return { kind: "plugin", name: cmd, run: (channelId) => fromPlugin.run(rest, channelId) };
   return { kind: "unknown", name: m[1]! };

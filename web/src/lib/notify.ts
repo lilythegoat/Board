@@ -12,6 +12,7 @@ import { useMessages, type DecryptedMessage } from "@/stores/messages";
 import { useServers } from "@/stores/servers";
 import { useSettings, type Settings } from "@/stores/settings";
 import { useUI } from "@/stores/ui";
+import { useQuietHours } from "@/stores/quietHours";
 import { useUsers, displayName } from "@/stores/users";
 import { desktopBridge } from "./desktopBridge";
 import { doNotDisturb } from "./dnd";
@@ -162,6 +163,8 @@ function onMessage(m: Message, mine: boolean, decrypted?: DecryptedMessage): voi
   if (isQuiet(decrypted ?? m, currentBlockRules(), loadedAuthorOf(m.channel_id))) return;
   const me = useAuth.getState().me;
   if (!me) return;
+  // quiet hours: nothing makes a sound or pops up, the message still counts as unread
+  if (useQuietHours.getState().activeNow()) return;
   // nor does anything AutoMod holds back
   if (decrypted && heldBy(decrypted, me.id)) return;
   const settings = useSettings.getState().settings;

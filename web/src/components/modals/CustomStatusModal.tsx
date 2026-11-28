@@ -28,6 +28,7 @@ export function CustomStatusModal({ onClose }: { onClose: () => void }) {
   const presence = usePresence((p) => (me ? p.byUser[me.id] : undefined));
   const setPresence = usePresence((p) => p.set);
   const [text, setText] = useState(presence?.status_text ?? "");
+  const [kind, setKind] = useState(presence?.status ?? "online");
   const [emoji, setEmoji] = useState(presence?.status_emoji ?? "");
   // A status that clears itself keeps doing so unless told otherwise: saving
   // an emoji change used to reset "Clear after" to never.
@@ -51,8 +52,8 @@ export function CustomStatusModal({ onClose }: { onClose: () => void }) {
     } else if (opt?.ms) expires = Date.now() + opt.ms;
     const t = text.trim().slice(0, 128);
     const em = emoji.trim().slice(0, 64);
-    gateway()?.sendPresence(t || em ? { status_text: t, status_emoji: em, status_expires_at: expires } : { clear_status: true });
-    setPresence({ user_id: me.id, status: presence?.status ?? "online", status_text: t, status_emoji: em, status_expires_at: expires });
+    gateway()?.sendPresence(t || em || kind !== (presence?.status ?? "online") ? { status: kind, status_text: t, status_emoji: em, status_expires_at: expires } : { clear_status: true });
+    setPresence({ user_id: me.id, status: kind, status_text: t, status_emoji: em, status_expires_at: expires });
     onClose();
   };
 
@@ -97,6 +98,15 @@ export function CustomStatusModal({ onClose }: { onClose: () => void }) {
             }}
           />
         ) : null}
+        <Field label={tr_("modals.customStatus.status")}>
+          <div className={s.statusRow}>
+            {(["online", "idle", "dnd", "invisible"] as const).map((k) => (
+              <button key={k} type="button" className={s.statusPick} data-on={kind === k || undefined} onClick={() => setKind(k)}>
+                {tr_(`modals.customStatus.status_${k}`)}
+              </button>
+            ))}
+          </div>
+        </Field>
         <Field label={tr_("modals.customStatus.clearAfter")}>
           <select className={s.select} value={clear} onChange={(e) => setClear(Number(e.target.value))}>
             {choices.map((c, i) => <option key={c.label} value={i}>{c.label}</option>)}

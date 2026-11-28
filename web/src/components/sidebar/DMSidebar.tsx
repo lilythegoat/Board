@@ -1,7 +1,7 @@
 import { useMediaAnimation } from "@/lib/mediaAnimation";
 import { withOwn } from "@/lib/useMemberLook";
 import { nameClass, nameStyle } from "@/lib/roleLook";
-import { ChevronDown, GripVertical, Lock, MessageCircle, MoreHorizontal, Cookie, Heart, NotebookPen, Pin, Plus, Search, Shield, Users, X } from "lucide-react";
+import { ChevronDown, GripVertical, Lock, MessageCircle, MoreHorizontal, Cookie, Heart, NotebookPen, Pin, Plus, Search, Shield, Users, X, Sparkles, Shirt, Bookmark} from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Avatar, showsTyping } from "@/components/common/Avatar";
 import { menuAnchor } from "@/components/common/ContextMenu";
@@ -656,6 +656,17 @@ export function DMSidebar() {
                <button className={s.nav} data-selected={loc.pathname.startsWith("/channels/@me/cookies")} onClick={() => go("/channels/@me/cookies")} data-testid="nav-cookies">
           <span className={s.navIcon}><Cookie size={22} /></span>
           <span className={s.navLabel}>{t("cookies.nav")}</span>
+        </button>        <button className={s.nav} data-selected={loc.pathname.startsWith("/channels/@me/board-ai")} onClick={() => go("/channels/@me/board-ai")} data-testid="nav-board-ai">
+          <span className={s.navIcon}><Sparkles size={22} /></span>
+          <span className={s.navLabel}>{t("boardai.title")}</span>
+        </button>
+        <button className={s.nav} data-selected={loc.pathname.startsWith("/channels/@me/avatar-items")} onClick={() => go("/channels/@me/avatar-items")} data-testid="nav-avatar-items">
+          <span className={s.navIcon}><Shirt size={22} /></span>
+          <span className={s.navLabel}>{t("avatarItems.title")}</span>
+        </button>
+        <button className={s.nav} data-selected={loc.pathname.startsWith("/channels/@me/bookmarks")} onClick={() => go("/channels/@me/bookmarks")} data-testid="nav-bookmarks">
+          <span className={s.navIcon}><Bookmark size={22} /></span>
+          <span className={s.navLabel}>{t("bookmarks.title")}</span>
         </button>        {isAdmin ? (
           <button
             className={s.nav}

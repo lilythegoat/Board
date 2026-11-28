@@ -17,6 +17,7 @@ import { heldMessage, useMessages, type PendingMessage, type PendingUpload } fro
 import { useUI } from "@/stores/ui";
 import { useUsers } from "@/stores/users";
 import { useSlowmode } from "@/stores/slowmode";
+import { useLevels } from "@/stores/levels";
 import { canI, P, useServers } from "@/stores/servers";
 import { emojiToken, packEmoji, useExpressions } from "@/stores/expressions";
 import { emojiByShortcode, emojiLoaded } from "@/components/pickers/emojiIndex";
@@ -248,6 +249,8 @@ export function sendMessage(channelId: string, rawText: string, opts: SendOption
     onSent: (d) => {
       perfStage("send", performance.now() - began);
       opts.onSent?.(d);
+      // chatting earns XP, at most once a minute (the server enforces it)
+      void useLevels.getState().award();
     },
   };
   return enqueue(channelId, () => deliver(channelId, me.id, w, tmp, nonce, timed));

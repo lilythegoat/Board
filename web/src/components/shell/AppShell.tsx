@@ -22,6 +22,9 @@ import { UpdatePrompt } from "@/components/shell/UpdateDialog";
 import { DesktopEffects } from "@/components/desktop/DesktopEffects";
 import { EmojiDetails } from "@/components/chat/EmojiDetails";
 import { Shortcuts } from "@/components/shell/Shortcuts";
+import { QuickSwitcher } from "@/components/shell/QuickSwitcher";
+import { useLevels } from "@/stores/levels";
+import { useQuietHours } from "@/stores/quietHours";
 import { TAB_PANEL_ID, Tabs } from "@/components/shell/Tabs";
 import { UserPanel } from "@/components/shell/UserPanel";
 import { VoiceStatus } from "@/components/voice/VoiceStatus";
@@ -72,6 +75,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [params, setParams] = useSearchParams();
   const openModal = useUI((u) => u.openModal);
   const touch = useRef<{ x: number; y: number; edge: boolean } | null>(null);
+  // opening the app counts as today's login, for the streak and its bonus
+  useEffect(() => {
+    void useLevels.getState().checkin();
+    void useQuietHours.getState().load();
+  }, []);
   // The browser knows the moment the network goes; the socket only finds out
   // when a heartbeat goes unanswered, and for up to half a minute the app
   // looked perfectly healthy while nothing could arrive.
@@ -320,6 +328,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Plans />
       </Suspense>
       <Shortcuts />
+      <QuickSwitcher />
       <DesktopEffects />
       <EmojiDetails />
     </div>

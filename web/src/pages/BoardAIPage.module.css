@@ -1,0 +1,110 @@
+.page {
+  padding: 24px;
+  overflow-y: auto;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lede {
+  opacity: 0.75;
+  margin: 0 0 16px;
+}
+
+.askRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ask {
+  flex: 1;
+  border: 1px solid rgba(128, 0, 255, 0.35);
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-size: 15px;
+  background: var(--bg, transparent);
+  color: inherit;
+}
+
+.askBtn {
+  background: #8000ff;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.answer {
+  background: rgba(128, 0, 255, 0.08);
+  border: 1px solid rgba(128, 0, 255, 0.3);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.answerQ {
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.answerA {
+  line-height: 1.5;
+}
+
+.missed {
+  background: rgba(128, 0, 255, 0.08);
+  border: 1px solid rgba(128, 0, 255, 0.22);
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.sub {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 8px 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  text-align: start;
+  background: rgba(128, 0, 255, 0.06);
+  border: 1px solid rgba(128, 0, 255, 0.18);
+  border-radius: 16px;
+  padding: 12px 16px;
+  cursor: pointer;
+  color: inherit;
+}
+
+.item:hover {
+  border-color: rgba(128, 0, 255, 0.45);
+}
+
+.q {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.a {
+  display: block;
+  opacity: 0.8;
+  line-height: 1.45;
+}

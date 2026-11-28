@@ -75,6 +75,12 @@ export default function FriendsPage() {
   const [query, setQuery] = useState("");
   const rels = useRelationships((r) => r.byUser);
   const presence = usePresence((p) => p.byUser);
+  const loadEquipped = useAvatarItems((x) => x.loadEquipped);
+  // the worn avatar item of everyone listed, for the badge on their picture
+  useEffect(() => {
+    const ids = Object.values(rels).map((r) => r.user.id);
+    if (ids.length) void loadEquipped(ids);
+  }, [rels, loadEquipped]);
   const users = useUsers((u) => u.byId);
   const list = useMemo(() => {
     const all = Object.values(rels);
@@ -241,6 +247,7 @@ function YourUsername() {
 }
 
 function FriendRow({ rel, presenceUser, order, picking, picked }: { rel: Relationship; presenceUser: Relationship["user"]; order: string[]; picking: boolean; picked: boolean }) {
+  const equippedByUser = useAvatarItems((x) => x.equippedByUser);
   const nav = useNavigate();
   const p = usePresence((st) => st.byUser[rel.user.id]);
   const toast = useUI((u) => u.toast);
@@ -333,7 +340,12 @@ function FriendRow({ rel, presenceUser, order, picking, picked }: { rel: Relatio
         data-testid="friend-row"
       >
         {picking ? <PickMark on={picked} label={tr_("pick.pickNamed", { name })} /> : null}
-        <Avatar id={rel.user.id} avatarId={presenceUser.avatar_id} name={name} size={32} status={rel.type === "friend" ? status : null} />
+        <span className={s.avatarWrap}>
+          <Avatar id={rel.user.id} avatarId={presenceUser.avatar_id} name={name} size={32} status={rel.type === "friend" ? status : null} />
+          {equippedByUser[rel.user.id] ? (
+            <span className={s.itemBadge} title={equippedByUser[rel.user.id]!.name} aria-label={equippedByUser[rel.user.id]!.name}>{equippedByUser[rel.user.id]!.emoji}</span>
+          ) : null}
+        </span>
         <span className={s.rowText}>
           <span className={s.rowName}>
             <PersonName user={presenceUser} className={s.rowDisplay} dir="auto">{name}</PersonName>

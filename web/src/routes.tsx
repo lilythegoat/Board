@@ -24,6 +24,9 @@ const NexaCasePage = lazyPage(() => import("@/pages/NexaCasePage"));
 const NexaBugPage = lazyPage(() => import("@/pages/NexaBugPage"));
 const NotesPage = lazyPage(() => import("@/pages/NotesPage"));
 const CookiesPage = lazyPage(() => import("@/pages/CookiesPage"));
+const BoardAIPage = lazyPage(() => import("@/pages/BoardAIPage"));
+const AvatarItemsPage = lazyPage(() => import("@/pages/AvatarItemsPage"));
+const BookmarksPage = lazyPage(() => import("@/pages/BookmarksPage"));
 const SupportPage = lazyPage(() => import("@/components/support/SupportPage"));
 const NoteLinkPage = lazyPage(() => import("@/pages/NoteLinkPage"));
 const DiscordConnectedPage = lazyPage(() => import("@/pages/DiscordConnectedPage"));
@@ -105,6 +108,9 @@ export function AppRoutes() {
                   <Route path="@me/support" element={<SupportPage />} />
                   <Route path="@me/notes" element={<NotesPage />} />
                   <Route path="@me/cookies" element={<CookiesPage />} />
+                  <Route path="@me/board-ai" element={<BoardAIPage />} />
+                  <Route path="@me/avatar-items" element={<AvatarItemsPage />} />
+                  <Route path="@me/bookmarks" element={<BookmarksPage />} />
                   <Route path="@me/notes/:noteId" element={<NotesPage />} />
                   <Route path="@admin" element={<AdminPanelPage />}>
                     <Route index element={<Navigate to="reports" replace />} />

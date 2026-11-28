@@ -11,6 +11,7 @@ import { memberBulk } from "@/components/server/memberBulk";
 import { PickBar, PickMark } from "@/components/common/Pick";
 import { pickClick, usePick } from "@/stores/pick";
 import { useAuth } from "@/stores/auth";
+import { useAvatarItems } from "@/stores/avatarItems";
 import { useSettings } from "@/stores/settings";
 import { useTypingIn } from "@/stores/typing";
 import { activitiesOf, customStatus, statusOf, usePresence } from "@/stores/presence";
@@ -39,6 +40,14 @@ type Row =
   | { kind: "head"; key: string; label: string; count: number }
   | { kind: "member"; key: string; member: Member; user: PublicUser | undefined; look: RoleLook | undefined; offline: boolean };
 
+/** Whether today is the anniversary of the day the account was created. */
+function isAnniversary(createdAt: number | undefined | null): boolean {
+  if (!createdAt) return false;
+  const d = new Date(createdAt);
+  const now = new Date();
+  return d.getMonth() === now.getMonth() && d.getDate() === now.getDate() && d.getFullYear() !== now.getFullYear();
+}
+
 const ROW_H = 44;
 const HEAD_H = 40;
 const VIRTUAL_FROM = 200;
@@ -57,6 +66,8 @@ export function MemberList({ serverId, channelId, drawer, open, entering, onEnte
   const typingOn = useSettings((x) => x.settings.typingAvatars !== false);
   const typers = useTypingIn(typingOn ? channelId : null, meId);
   const openModal = useUI((u) => u.openModal);
+  const equippedByUser = useAvatarItems((x) => x.equippedByUser);
+  const loadEquipped = useAvatarItems((x) => x.loadEquipped);
   const ref = useRef<HTMLElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
   const [height, setHeight] = useState(600);
@@ -203,6 +214,11 @@ export function MemberList({ serverId, channelId, drawer, open, entering, onEnte
   const pickMode = usePick((p) => p.list === pickList && p.mode);
   const isPicking = pickMode || picked.length > 0;
   const pickOrder = useMemo(() => rows.flatMap((r) => (r.kind === "head" ? [] : [r.member.user_id])), [rows]);
+  // the worn avatar item of everyone shown, for the badge on their picture
+  useEffect(() => {
+    const ids = rows.filter((r) => r.kind === "member").map((r) => r.member.user_id);
+    if (ids.length) void loadEquipped(ids);
+  }, [rows, loadEquipped]);
   if (!st) return null;
   const virtual = rows.length > VIRTUAL_FROM;
   let start = 0;
@@ -262,12 +278,18 @@ export function MemberList({ serverId, channelId, drawer, open, entering, onEnte
             aria-pressed={isPicking ? picked.includes(row.member.user_id) : undefined}
           >
             {isPicking ? <PickMark on={picked.includes(row.member.user_id)} label={t("pick.pickNamed", { name })} /> : null}
-            <Avatar id={row.member.user_id} avatarId={row.member.avatar_id ?? row.user?.avatar_id ?? null} name={name} size={32} status={statusOf(p)} typing={typingOn ? typers.includes(row.member.user_id) : undefined} />
+            <span className={s.avatarWrap}>
+              <Avatar id={row.member.user_id} avatarId={row.member.avatar_id ?? row.user?.avatar_id ?? null} name={name} size={32} status={statusOf(p)} typing={typingOn ? typers.includes(row.member.user_id) : undefined} />
+              {equippedByUser[row.member.user_id] ? (
+                <span className={s.itemBadge} title={equippedByUser[row.member.user_id]!.name} aria-label={equippedByUser[row.member.user_id]!.name}>{equippedByUser[row.member.user_id]!.emoji}</span>
+              ) : null}
+            </span>
             <span className={s.text}>
               <span className={s.name} style={row.look?.color ? { color: row.look.color } : undefined}>
                 <span className={[s.nameText, nameClass(row.look)].join(" ")} style={nameStyle(row.look)}>{name}</span>
                 {row.look?.icon ? <RoleIcon icon={row.look.icon} size={16} /> : null}
                 {!isOwner(row.member.user_id) && st.server.owner_id === row.member.user_id ? <Crown size={14} className={s.crown} aria-label={t("chat.memberList.serverOwner")} /> : null}
+                {isAnniversary(row.user?.created_at) ? <span title={t("chat.memberList.anniversary")} aria-label={t("chat.memberList.anniversary")}>🎂</span> : null}
                 <RankMark userId={row.member.user_id} />
                 <BotTag userId={row.member.user_id} />
                 <UserTag userId={row.member.user_id} size="sm" />
