@@ -25,6 +25,8 @@ import { Shortcuts } from "@/components/shell/Shortcuts";
 import { QuickSwitcher } from "@/components/shell/QuickSwitcher";
 import { useLevels } from "@/stores/levels";
 import { useQuietHours } from "@/stores/quietHours";
+import { useScheduledMessages } from "@/stores/scheduledMessages";
+import { useReminders } from "@/stores/reminders";
 import { TAB_PANEL_ID, Tabs } from "@/components/shell/Tabs";
 import { UserPanel } from "@/components/shell/UserPanel";
 import { VoiceStatus } from "@/components/voice/VoiceStatus";
@@ -79,6 +81,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     void useLevels.getState().checkin();
     void useQuietHours.getState().load();
+    // scheduled messages and reminders go out while the app is open
+    useScheduledMessages.getState().sendDue();
+    useReminders.getState().fireDue();
+    const timer = setInterval(() => {
+      useScheduledMessages.getState().sendDue();
+      useReminders.getState().fireDue();
+    }, 30_000);
+    return () => clearInterval(timer);
   }, []);
   // The browser knows the moment the network goes; the socket only finds out
   // when a heartbeat goes unanswered, and for up to half a minute the app

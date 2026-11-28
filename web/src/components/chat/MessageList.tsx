@@ -22,6 +22,7 @@ import { useUsers } from "@/stores/users";
 import { useReplyTargets, type ReplyTarget } from "@/stores/replyTargets";
 import { useChannels } from "@/stores/channels";
 import { MessageItem } from "./MessageItem";
+import { ReadReceipts } from "./ReadReceipts";
 import { listOpenedAt } from "@/lib/motion";
 import { serverNow } from "@/lib/serverClock";
 import { GroupAlone } from "./GroupAlone";
@@ -1120,6 +1121,7 @@ export function MessageList({ channel }: { channel: Channel }) {
             })}
             </ActiveRowsProvider>
           </RenderCtxProvider>
+          <ReadReceipts channel={channel} rows={rows} />
           {hasNewer && loaded ? <div className={s.loader}><Spinner size={24} /></div> : null}
         </div>
       </div>

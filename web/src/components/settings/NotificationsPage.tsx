@@ -1,5 +1,5 @@
 import { AudioLines, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/common/Button";
 import { Toggle } from "@/components/common/Toggle";
 import { desktopBridge } from "@/lib/desktopBridge";
@@ -7,6 +7,7 @@ import { showNotification } from "@/lib/notify";
 import { previewSound, soundTrouble, type SoundName } from "@/lib/sounds";
 import { useSettings, type NotificationPreview } from "@/stores/settings";
 import { useUI } from "@/stores/ui";
+import { useQuietHours } from "@/stores/quietHours";
 import { staffAlerts } from "@/lib/staffAlerts";
 import { useMyRank } from "@/lib/staffRank";
 import s from "./Settings.module.css";
@@ -48,6 +49,66 @@ function StaffAlertSettings() {
       ))}
       <Toggle checked={now.cases} onChange={(v) => set({ cases: v })} label={t("settings.notifications.staffCases")} description={t("settings.notifications.staffCasesHint")} />
       <Toggle checked={now.bugs} onChange={(v) => set({ bugs: v })} label={t("settings.notifications.staffBugs")} description={t("settings.notifications.staffBugsHint")} />
+    </>
+  );
+}
+
+function fmtMins(m: number): string {
+  return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+}
+
+/** Do-not-disturb hours: no sound, no pop-up, the message still counts as unread. */
+function QuietHoursSettings() {
+  const quiet = useQuietHours((q) => q.quiet);
+  const save = useQuietHours((q) => q.save);
+  const [start, setStart] = useState(quiet ? fmtMins(quiet.start) : "22:00");
+  const [end, setEnd] = useState(quiet ? fmtMins(quiet.end) : "08:00");
+  useEffect(() => {
+    if (quiet) {
+      setStart(fmtMins(quiet.start));
+      setEnd(fmtMins(quiet.end));
+    }
+  }, [quiet]);
+  const toMins = (v: string) => {
+    const [h, m] = v.split(":").map(Number);
+    return (h ?? 0) * 60 + (m ?? 0);
+  };
+  const apply = (enabled: boolean, s: string, e: string) => {
+    void save({ enabled, start: toMins(s), end: toMins(e) }).catch(() => undefined);
+  };
+  return (
+    <>
+      <Toggle
+        setting="quietHours"
+        checked={quiet?.enabled ?? false}
+        onChange={(v) => apply(v, start, end)}
+        label={t("settings.notifications.quietHoursEnable")}
+        description={t("settings.notifications.quietHoursEnableHint")}
+      />
+      <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 8 }}>
+        <label>
+          {t("settings.notifications.quietHoursFrom")}{" "}
+          <input
+            type="time"
+            value={start}
+            onChange={(e) => {
+              setStart(e.target.value);
+              apply(quiet?.enabled ?? false, e.target.value, end);
+            }}
+          />
+        </label>
+        <label>
+          {t("settings.notifications.quietHoursTo")}{" "}
+          <input
+            type="time"
+            value={end}
+            onChange={(e) => {
+              setEnd(e.target.value);
+              apply(quiet?.enabled ?? false, start, e.target.value);
+            }}
+          />
+        </label>
+      </div>
     </>
   );
 }
@@ -108,6 +169,9 @@ export default function NotificationsPage({ onSounds }: { onSounds?: () => void 
         </label>
       ))}
       {rank ? <StaffAlertSettings /> : null}
+      <h3 className={s.h5}>{t("settings.notifications.quietHours")}</h3>
+      <p className={s.hint}>{t("settings.notifications.quietHoursHint")}</p>
+      <QuietHoursSettings />
       <h3 className={s.h5}>{t("settings.notifications.test")}</h3>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         <Button size="sm" variant="secondary" onClick={() => void testSound("message")}>{t("profile.profileCard.message")}</Button>

@@ -388,3 +388,11 @@
 
 /* User-supplied compact metadata must not grow its surrounding controls. */
 .ringSub { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+
+/* raised hands in the call, under the buttons */
+.hands {
+  padding: 6px 10px 0;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.9;
+}

@@ -13,7 +13,7 @@ import (
 
 // Board 20: the leaderboard, the Cookie Shop, levels & XP, login streaks,
 // server boosts, avatar items, message edit history, voice raise-hand,
-// friend nicknames, bookmarks, quiet hours and DM read receipts.
+// profile banners, bookmarks, quiet hours and DM read receipts.
 func (s *Server) boardPlusRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /api/v1/cookies/leaderboard", s.authed(s.handleLeaderboard))
 	mux.Handle("GET /api/v1/shop", s.authed(s.handleShopList))
@@ -30,8 +30,8 @@ func (s *Server) boardPlusRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /api/v1/channels/{id}/messages/{mid}/edits", s.authed(s.handleMessageEdits))
 	mux.Handle("POST /api/v1/voice/{id}/hand", s.authed(s.handleVoiceHand))
 	mux.Handle("GET /api/v1/voice/{id}/hands", s.authed(s.handleVoiceHands))
-	mux.Handle("GET /api/v1/nicknames", s.authed(s.handleNicknames))
-	mux.Handle("POST /api/v1/nicknames", s.authed(s.handleNicknameSet))
+	mux.Handle("GET /api/v1/users/{id}/banner", s.authed(s.handleProfileBannerOf))
+	mux.Handle("POST /api/v1/me/banner", s.authed(s.handleProfileBannerSet))
 	mux.Handle("GET /api/v1/bookmarks", s.authed(s.handleBookmarks))
 	mux.Handle("POST /api/v1/bookmarks", s.authed(s.handleBookmarkAdd))
 	mux.Handle("DELETE /api/v1/bookmarks/{mid}", s.authed(s.handleBookmarkRemove))
@@ -297,51 +297,40 @@ func (s *Server) handleVoiceHands(w http.ResponseWriter, r *http.Request) {
 	WriteJSON(w, http.StatusOK, map[string]any{"hands": hands})
 }
 
-// handleNicknames is every nickname the caller gave its friends.
-func (s *Server) handleNicknames(w http.ResponseWriter, r *http.Request) {
-	me := auth.UserFrom(r.Context())
-	nicks, err := s.Store.Nicknames(r.Context(), me.ID)
+// handleProfileBannerOf is one account's profile banner colour.
+func (s *Server) handleProfileBannerOf(w http.ResponseWriter, r *http.Request) {
+	id, err := ids.Parse(r.PathValue("id"))
 	if err != nil {
-		WriteError(w, err)
+		WriteError(w, ErrNotFound)
 		return
 	}
-	WriteJSON(w, http.StatusOK, map[string]any{"nicknames": nicks})
+	color, err := s.Store.ProfileBannerOf(r.Context(), id)
+	if err != nil {
+		WriteError(w, ErrNotFound)
+		return
+	}
+	WriteJSON(w, http.StatusOK, map[string]any{"banner": color})
 }
 
-// handleNicknameSet gives a friend a nickname, or clears it.
-func (s *Server) handleNicknameSet(w http.ResponseWriter, r *http.Request) {
+// handleProfileBannerSet saves the caller's profile banner colour.
+func (s *Server) handleProfileBannerSet(w http.ResponseWriter, r *http.Request) {
 	me := auth.UserFrom(r.Context())
 	var req struct {
-		FriendID ids.ID `json:"friend_id"`
-		Nickname string `json:"nickname"`
+		Color int64 `json:"color"`
 	}
 	if err := ReadJSON(w, r, &req, 1<<10); err != nil {
 		WriteError(w, err)
 		return
 	}
-	if req.FriendID.IsZero() || req.FriendID == me.ID {
-		WriteError(w, E(http.StatusBadRequest, "invalid_friend", "Pick someone else to nickname."))
+	if req.Color < 0 || req.Color > 0xFFFFFF {
+		WriteError(w, E(http.StatusBadRequest, "invalid_banner", "A banner is a colour, 0 to 16777215."))
 		return
 	}
-	nick := strings.TrimSpace(req.Nickname)
-	if utf8.RuneCountInString(nick) > store.MaxNicknameLen {
-		WriteError(w, E(http.StatusBadRequest, "invalid_nickname", "A nickname is up to 32 characters."))
-		return
-	}
-	to, err := s.Store.UserByID(r.Context(), req.FriendID)
-	if err != nil {
+	if err := s.Store.SetProfileBanner(r.Context(), me.ID, req.Color); err != nil {
 		WriteError(w, err)
 		return
 	}
-	if to.Flags&store.FlagDeleted != 0 || notAPerson(to) {
-		WriteError(w, E(http.StatusBadRequest, "invalid_friend", "That account cannot be nicknamed."))
-		return
-	}
-	if err := s.Store.SetNickname(r.Context(), me.ID, req.FriendID, nick); err != nil {
-		WriteError(w, err)
-		return
-	}
-	WriteJSON(w, http.StatusOK, map[string]any{"friend_id": req.FriendID, "nickname": nick})
+	WriteJSON(w, http.StatusOK, map[string]any{"banner": req.Color})
 }
 
 // handleBookmarks is the caller's saved messages.

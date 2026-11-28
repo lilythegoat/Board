@@ -1,6 +1,7 @@
 import { PersonName } from "@/components/common/PersonName";
-import { AudioLines, AudioWaveform, MonitorUp, PhoneOutgoing, Signal, Video } from "lucide-react";
-import type { MouseEvent } from "react";
+import { AudioLines, AudioWaveform, Hand, MonitorUp, PhoneOutgoing, Signal, Video } from "lucide-react";
+import { useEffect, useState, type MouseEvent } from "react";
+import { boardPlus, type VoiceHand } from "@/api/boardplus";
 import { useNavigate } from "react-router-dom";
 import { menuAnchor } from "@/components/common/ContextMenu";
 import { Tooltip } from "@/components/common/Tooltip";
@@ -38,6 +39,48 @@ export function VoiceStatus() {
   const connection = useVoice((v) => v.connection);
   const calling = useVoice((v) => !!v.calling && v.calling === v.mine?.channel_id);
   const openModal = useUI((u) => u.openModal);
+  // raising a hand in the call, and whose hands are up
+  const [raised, setRaised] = useState(false);
+  const [hands, setHands] = useState<VoiceHand[]>([]);
+  const inCall = !!mine;
+  useEffect(() => {
+    if (!channelId || !inCall) {
+      setRaised(false);
+      setHands([]);
+      return;
+    }
+    let alive = true;
+    const load = () => {
+      boardPlus
+        .hands(channelId)
+        .then((r) => {
+          if (!alive) return;
+          setHands(r.hands);
+          setRaised(r.hands.some((h) => h.user_id === meId));
+        })
+        .catch(() => undefined);
+    };
+    load();
+    const timer = setInterval(load, 15_000);
+    return () => {
+      alive = false;
+      clearInterval(timer);
+    };
+  }, [channelId, inCall, meId]);
+  const toggleHand = () => {
+    if (!channelId) return;
+    const next = !raised;
+    setRaised(next);
+    void boardPlus
+      .setHand(channelId, next)
+      .then(() => {
+        boardPlus
+          .hands(channelId)
+          .then((r) => setHands(r.hands))
+          .catch(() => undefined);
+      })
+      .catch(() => setRaised(!next));
+  };
 
   if (!channelId) return null;
   const name = channel ? channelDisplayName(channel, users, meId) : "…";
@@ -95,7 +138,15 @@ export function VoiceStatus() {
         </button>
         {/* phone browsers cannot share a screen, so the camera gets the row */}
         {canShareScreen ? <button className={s.statusWide} data-on={!!localScreen} onClick={() => (localScreen ? void toggleScreen() : openModal("shareScreen"))} disabled={!mine}><MonitorUp size={16} /> {localScreen ? t("voice.voiceStatus.sharing") : t("desktop.displayPicker.share")}</button> : null}
+        <button className={s.statusWide} data-on={raised} onClick={toggleHand} disabled={!mine}>
+          <Hand size={16} /> {raised ? t("board20.hand.lower") : t("board20.hand.raise")}
+        </button>
       </div>
+      {hands.length > 0 ? (
+        <div className={s.hands}>
+          ✋ {hands.map((h) => displayName(users[h.user_id])).filter(Boolean).join(", ")}
+        </div>
+      ) : null}
     </div>
   );
 }

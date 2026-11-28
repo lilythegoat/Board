@@ -28,6 +28,7 @@ import { ProfileWidgets, WidgetPeek, type WidgetDesign } from "./Widgets";
 import { readWidgets, type Widget } from "@/lib/widgets";
 import { Tooltip } from "@/components/common/Tooltip";
 import { promptFields } from "@/components/modals/PromptModal";
+import { boardPlus } from "@/api/boardplus";
 import { KeyStatusChip } from "./KeyVerify";
 import { RelationshipBar, relationshipLine } from "./RelationshipBar";
 import { profileTheme, profileThemeOf } from "@/lib/avatarColor";
@@ -533,6 +534,20 @@ export function ProfileCard({ userId, variant, onClose, preview, previewWidgets,
   const themed = !!user && !!profileThemeOf(user.accent_color, user.accent_color_2);
   const tintFrom = !user || themed ? null : (bannerUrl(user.banner_id, 64) ?? avatarUrl(user.avatar_id, 64));
   const tint = useDominantColor(tintFrom);
+  // a banner colour picked on the Avatar Items page, for cards with no banner picture
+  const [bannerColor, setBannerColor] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    boardPlus
+      .bannerOf(userId)
+      .then((r) => {
+        if (alive) setBannerColor(r.banner);
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [userId]);
 
   if (!user) return null;
   // the system account is not a person, and says so
@@ -551,7 +566,11 @@ export function ProfileCard({ userId, variant, onClose, preview, previewWidgets,
   const colours: Record<string, string> = theme ? { "--profile-top": theme.top, "--profile-bottom": theme.bottom } : tint ? { "--profile-tint": tint } : {};
   const cardStyle = { "--av": `${avatarSize}px`, ...colours } as CSSProperties;
   // with a theme and no picture the banner is see-through, so the gradient runs unbroken from the top
-  const bannerStyle: CSSProperties = banner ? { backgroundImage: `url(${banner})` } : { background: theme ? "transparent" : profileTheme(user.accent_color, null, user.id) };
+  const bannerStyle: CSSProperties = banner
+    ? { backgroundImage: `url(${banner})` }
+    : bannerColor
+      ? { background: `linear-gradient(135deg, #${bannerColor.toString(16).padStart(6, "0")}, #1b0a2e)`, boxShadow: "inset 0 0 0 1px rgba(128, 0, 255, 0.45)" }
+      : { background: theme ? "transparent" : profileTheme(user.accent_color, null, user.id) };
 
   const message = async () => {
     try {

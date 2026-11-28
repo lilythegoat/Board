@@ -136,3 +136,29 @@
 @media (pointer: coarse) {
   .threadRow { height: 40px; }
 }
+
+/* how boosted the server is, under its name */
+.boostLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #a855f7;
+}
+
+.boostBar {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(128, 0, 255, 0.2);
+  overflow: hidden;
+}
+
+.boostFill {
+  display: block;
+  height: 100%;
+  background: #8000ff;
+  border-radius: 999px;
+}

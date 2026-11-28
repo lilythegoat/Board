@@ -2,6 +2,8 @@ import { reportItem } from "@/lib/reporting";
 import { ApiError } from "@/api/client";
 import { servers as serversApi } from "@/api/servers";
 import { billing as billingApi } from "@/api/billing";
+import { boardPlus } from "@/api/boardplus";
+import { useCookies } from "@/stores/cookies";
 import { myPlan, plansInfo } from "@/lib/plans";
 import { formatBytes } from "@/lib/time";
 import { P } from "@/lib/perms";
@@ -96,6 +98,26 @@ export const serverMenu = defineMenu<ServerMenuCtx>("server", [
     button("boostServer", ({ serverId }) => {
       const st = serverOf(serverId);
       return !!st && myPlan() === "pro" && { id: "boost", label: t("support.boosts.boostServer"), onSelect: () => void boostServer(serverId, st.server.name) };
+    }),
+    // a Cookie boost: 500 Cookies, for anyone, not just Pro
+    button("boostServerCookies", ({ serverId }) => {
+      const st = serverOf(serverId);
+      if (!st) return null;
+      return {
+        id: "boost-cookies",
+        label: t("board20.boost.withCookies"),
+        onSelect: () => {
+          void boardPlus
+            .boost(serverId)
+            .then((r) => {
+              void useCookies.getState().load().catch(() => undefined);
+              useUI.getState().toast(t("board20.boost.boosted", { server: st.server.name, level: r.level }), "success");
+            })
+            .catch((err: unknown) => {
+              useUI.getState().toast(err instanceof ApiError ? err.message : t("board20.boost.failed"), "error");
+            });
+        },
+      };
     }),
   ],
   [

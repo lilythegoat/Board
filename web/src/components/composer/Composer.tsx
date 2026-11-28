@@ -1,6 +1,8 @@
 import { ChevronUp, CirclePlus, Mic, SendHorizontal, Smile, X, Eye, EyeOff, Trash2, Timer, Type, File as FileIcon } from "lucide-react";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type KeyboardEvent, type SyntheticEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { promptFields } from "@/components/modals/PromptModal";
+import { useScheduledMessages } from "@/stores/scheduledMessages";
 import { flushSync } from "react-dom";
 import { lazyPage } from "@/lib/lazyChunk";
 import type { Channel } from "@/api/types";
@@ -868,7 +870,27 @@ export function Composer({ channel }: { channel: Channel }) {
   const plusDo = (o: PlusOption) => {
     // still inside the click that chose it, which is what lets the file picker open
     if (o === "upload") fileRef.current?.click();
+    else if (o === "schedule") void scheduleMessage();
     else useUI.getState().openModal("createPoll", { channelId: channel.id });
+  };
+
+  /** Sends what the box holds later, at a time the writer picks. */
+  const scheduleMessage = async () => {
+    const body = text.trim();
+    if (!body) {
+      toast(tr_("composer.schedule.writeSomethingFirst"), "error");
+      return;
+    }
+    const values = await promptFields({ title: tr_("composer.schedule.title"), fields: [{ key: "minutes", label: tr_("composer.schedule.inMinutes"), initial: "60", placeholder: "60", maxLength: 5, hint: tr_("composer.schedule.minutesHint") }], confirmLabel: tr_("composer.schedule.schedule") });
+    const raw = values?.["minutes"]?.trim();
+    const minutes = raw ? Number(raw) : NaN;
+    if (!Number.isFinite(minutes) || minutes < 1 || minutes > 10080) {
+      toast(tr_("composer.schedule.invalidMinutes"), "error");
+      return;
+    }
+    useScheduledMessages.getState().add(channel.id, body, Date.now() + minutes * 60_000);
+    clearForSend(channel.id);
+    toast(tr_("composer.schedule.scheduled", { minutes: Math.round(minutes) }), "success");
   };
   /** The phone's one button for formatting, the preview and emoji, opening a menu above it. */
   const onTools = (el: HTMLElement) => {

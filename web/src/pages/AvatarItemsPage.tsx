@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Shirt } from "lucide-react";
 import { useAvatarItems } from "@/stores/avatarItems";
+import { useAuth } from "@/stores/auth";
+import { boardPlus } from "@/api/boardplus";
 import s from "./AvatarItemsPage.module.css";
 
 import { t } from "@/i18n";
@@ -17,6 +19,16 @@ export function AvatarItemsPage() {
   const [emoji, setEmoji] = useState("⭐");
   const [color, setColor] = useState(COLORS[0]!);
   const [error, setError] = useState("");
+  // a banner colour for the profile card, when there is no banner picture
+  const meId = useAuth((a) => a.me?.id);
+  const [banner, setBanner] = useState(0);
+  useEffect(() => {
+    if (!meId) return;
+    boardPlus
+      .bannerOf(meId)
+      .then((r) => setBanner(r.banner))
+      .catch(() => undefined);
+  }, [meId]);
 
   useEffect(() => {
     void loadMine();
@@ -65,6 +77,22 @@ export function AvatarItemsPage() {
           ))}
         </div>
       )}
+      <h2 className={s.sub}>{t("avatarItems.bannerTitle")}</h2>
+      <p className={s.lede}>{t("avatarItems.bannerLede")}</p>
+      <div className={s.form}>
+        <div className={s.colors}>
+          {COLORS.map((c) => (
+            <button key={c} type="button" className={s.color} data-on={banner === c || undefined} style={{ background: `#${c.toString(16).padStart(6, "0")}` }} onClick={() => {
+              setBanner(c);
+              void boardPlus.setBanner(c).catch(() => undefined);
+            }} aria-label={`#${c.toString(16).padStart(6, "0")}`} />
+          ))}
+          <button type="button" className={s.color} data-on={banner === 0 || undefined} style={{ background: "transparent", border: "1px dashed currentColor" }} onClick={() => {
+            setBanner(0);
+            void boardPlus.setBanner(0).catch(() => undefined);
+          }} aria-label={t("avatarItems.noBanner")}>✕</button>
+        </div>
+      </div>
     </div>
   );
 }

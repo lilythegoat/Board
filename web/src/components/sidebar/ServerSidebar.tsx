@@ -15,6 +15,7 @@ import { useVoice } from "@/stores/voice";
 import { useVoiceDrag } from "@/stores/voiceDrag";
 import { Tooltip } from "@/components/common/Tooltip";
 import { OfficialBadge } from "@/components/nexa/NexaBits";
+import { boardPlus } from "@/api/boardplus";
 import { P, isPrivateChannel } from "@/lib/perms";
 import { isMuted } from "@/lib/unread";
 import { useViewAs } from "@/stores/viewAs";
@@ -442,6 +443,7 @@ export function ServerSidebar({ serverId }: { serverId: string }) {
         <span className={s.headName}>{st.server.name}</span>{st.server.name === "Board Headquarters" ? <OfficialBadge compact /> : null}
         {menuOpen ? <X size={18} /> : <ChevronDown size={18} />}
       </button>
+      <BoostLine serverId={serverId} />
       <div className={s.scroll} ref={listRef} onScroll={banner ? measureBanner : undefined} onDragOver={onListDragOver} onDragLeave={onListDragLeave} onDrop={onDrop}>
         {banner ? <div className={s.banner} style={{ backgroundImage: `url(${banner})` }} aria-hidden="true" /> : <div className={s.top} />}
         {tree.loose.map((c) => renderChannel(c))}
@@ -476,6 +478,35 @@ export function ServerSidebar({ serverId }: { serverId: string }) {
         })}
         {tree.loose.length === 0 && tree.categories.length === 0 ? <div className={s.empty}>{t("sidebar.serverSidebar.noChannelsYouCanSeeYet")}</div> : null}
       </div>
+    </div>
+  );
+}
+
+/** How boosted this server is, under its name: its level and the way to the next one. */
+function BoostLine({ serverId }: { serverId: string }) {
+  const [info, setInfo] = useState<{ boosts: number; level: number } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    boardPlus
+      .boosts(serverId)
+      .then((r) => {
+        if (alive) setInfo(r);
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [serverId]);
+  if (!info || info.boosts === 0) return null;
+  const next = info.level >= 3 ? null : [2, 7, 14][info.level]!;
+  return (
+    <div className={s.boostLine}>
+      <span>🚀 {t("board20.boost.level", { level: info.level })} · {t("board20.boost.count", { count: info.boosts })}</span>
+      {next ? (
+        <span className={s.boostBar}>
+          <span className={s.boostFill} style={{ width: `${Math.min(100, (info.boosts / next) * 100)}%` }} />
+        </span>
+      ) : null}
     </div>
   );
 }

@@ -18,6 +18,7 @@ import { useSelection } from "@/stores/selection";
 import { useSettings } from "@/stores/settings";
 import { useUI } from "@/stores/ui";
 import { about, button, defineMenu, type MenuButton } from "@/lib/contextMenus/registry";
+import { useReminders } from "@/stores/reminders";
 import { messageAppsItem } from "./apps/appMenus";
 import { canI, P, useServers } from "@/stores/servers";
 import { useUsers } from "@/stores/users";
@@ -181,6 +182,36 @@ export const messageMenu = defineMenu<MessageMenuCtx>("message", [
       };
     }),
     button("markUnread", ({ msg }) => ({ id: "unread", label: t("chat.messageItem.markUnread"), onSelect: () => markUnread(msg) })),
+    button("remindInAnHour", ({ msg }) => {
+      const preview = [msg.payload?.fwd?.comment, msg.payload?.t].filter(Boolean).join("\n").slice(0, 100);
+      return {
+        id: "remind-hour",
+        label: t("chat.messageMenu.remindInAnHour"),
+        onSelect: () => {
+          useReminders.getState().add(msg.channel_id, msg.id, preview, Date.now() + 60 * 60_000);
+          useUI.getState().toast(t("chat.messageMenu.reminderSet"), "success");
+        },
+      };
+    }),
+    button("remindTomorrow", ({ msg }) => {
+      const preview = [msg.payload?.fwd?.comment, msg.payload?.t].filter(Boolean).join("\n").slice(0, 100);
+      return {
+        id: "remind-tomorrow",
+        label: t("chat.messageMenu.remindTomorrow"),
+        onSelect: () => {
+          const when = new Date();
+          when.setDate(when.getDate() + 1);
+          when.setHours(9, 0, 0, 0);
+          useReminders.getState().add(msg.channel_id, msg.id, preview, when.getTime());
+          useUI.getState().toast(t("chat.messageMenu.reminderSet"), "success");
+        },
+      };
+    }),
+    button("viewEditHistory", ({ msg }) =>
+      msg.edited_at
+        ? { id: "edit-history", label: t("chat.messageMenu.viewEditHistory"), onSelect: () => useUI.getState().openModal("editHistory", { channelId: msg.channel_id, messageId: msg.id }) }
+        : null,
+    ),
     button("toggleEmbeds", ({ msg }) => {
       if (!(msg.payload?.embeds?.length || msg.hook?.link_embeds.length) || !canRemoveEmbeds(msg)) return null;
       const suppressed = (msg.flags & MSG_FLAG_SUPPRESS_EMBEDS) !== 0;

@@ -1,4 +1,3 @@
-
 /** Board's logo: the hand-drawn "b" artwork, shown wherever the app puts its mark. */
 export function NexaMark({ size = 24, className }: { size?: number; className?: string }) {
   return (
@@ -14,23 +13,25 @@ export function NexaTile({ size = 48, radius = 0.225, className }: { size?: numb
 }
 
 /**
- * The wordmark, traced from the brand artwork. The letters take the colour of
- * the text around them and the sparkles keep the brand purple, so one drawing
- * works on a dark screen, a light one and a purple banner.
+ * The wordmark, drawn in the same chunky hand-drawn style as the brand
+ * artwork: b, o, a, r, d, with the "a" traced from the old wordmark. The
+ * letters take the colour of the text around them and the sparkles keep the
+ * brand purple, so one drawing works on a dark screen, a light one and a
+ * purple banner.
  */
 const WORDMARK_LETTERS =
-  "M119.0 20.43 136.82 20.43 136.58 29.22 137.29 31.59 138.95 34.44 144.18 39.19 149.64 34.44 151.78 31.35 152.26 20.43 169.6 20.43 169.6 35.63 156.29 48.69 170.31 63.42 170.31 72.92 168.88 73.4 155.58 76.25 152.02 76.25 152.26 71.02 151.07 66.51 148.22 62.23 144.89 59.38 143.94 59.38 140.38 62.0 137.29 66.75 136.58 69.36 136.82 76.25 118.29 76.01 118.29 63.66 131.83 49.64 119.0 36.1ZM0.0 21.62 40.14 21.62 41.81 22.8 29.45 25.65 50.59 30.17 52.49 38.72 52.49 76.25 33.73 76.25 33.73 66.98 33.73 35.87 18.53 35.87 18.53 76.25 0.0 76.25ZM70.31 21.62 99.52 21.62 104.28 24.23 109.74 29.69 110.93 31.12 110.93 49.64 106.65 55.34 76.96 55.34 76.96 62.71 109.26 62.71 109.26 66.27 109.26 76.25 68.17 76.25 64.13 71.97 58.67 67.7 58.67 34.2 59.62 30.17 80.52 25.65 68.41 22.8ZM180.52 22.09 219.24 22.09 229.45 31.35 229.45 76.72 200.48 76.72 195.96 75.53 181.24 72.45 177.2 52.49 184.09 43.94 211.88 43.94 211.88 35.87 180.52 35.63ZM77.2 34.44 76.96 44.42 92.64 44.42 92.64 34.44ZM195.72 55.34 195.49 63.18 211.64 63.18 211.64 55.34Z";
+  "M0.0 21.62 18.53 21.62 18.53 76.25 0.0 76.25Z M18.53 35.87 52.49 35.87 52.49 76.25 18.53 76.25Z M27.0 44.42 27.0 67.7 44.0 67.7 44.0 44.42Z M58.67 22.8 104.28 21.62 110.93 24.23 110.93 71.97 104.28 76.25 64.13 76.25 58.67 71.97Z M68.0 31.12 68.0 67.7 102.0 67.7 102.0 31.12Z M119.32 22.09 158.04 22.09 168.25 31.35 168.25 76.72 139.28 76.72 134.76 75.53 120.04 72.45 116 52.49 122.89 43.94 150.68 43.94 150.68 35.87 119.32 35.63Z M134.52 55.34 134.29 63.18 150.44 63.18 150.44 55.34Z M174.0 21.62 192.53 21.62 192.53 76.25 174.0 76.25Z M192.53 21.62 226.49 21.62 226.49 44.42 192.53 44.42Z M194.0 44.42 212.0 44.42 220.0 76.25 200.0 76.25Z M232.0 35.87 265.96 35.87 265.96 76.25 232.0 76.25Z M240.47 44.42 240.47 67.7 257.45 67.7 257.45 44.42Z M265.96 21.62 284.49 21.62 284.49 76.25 265.96 76.25Z";
 const WORDMARK_SPARK =
-  "M54.87 0.0 59.62 20.9 80.52 25.42 59.62 29.93 55.11 50.83 50.36 29.93 29.45 25.65 50.59 20.9ZM176.96 53.21 181.24 72.45 200.48 76.48 181.24 80.76 177.2 100.0 172.92 80.76 153.68 76.72 172.92 72.45Z";
+  "M54.87 0.0 59.62 20.9 80.52 25.42 59.62 29.93 55.11 50.83 50.36 29.93 29.45 25.65 50.59 20.9Z M260.96 53.21 265.24 72.45 284.48 76.48 265.24 80.76 261.2 100 256.92 80.76 237.68 76.72 256.92 72.45Z";
 
 export function NexaWordmark({ height = 40, className }: { height?: number; className?: string }) {
   return (
     <svg
       className={className}
       height={height}
-      viewBox="0 0 229.45 100"
+      viewBox="0 0 286 100"
       role="img"
-      aria-label="Nexa"
+      aria-label="Board"
       style={{ display: "block", width: "auto" }}
     >
       <path d={WORDMARK_LETTERS} fill="currentColor" fillRule="evenodd" />

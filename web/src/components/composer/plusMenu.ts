@@ -5,7 +5,7 @@ import { button, defineMenu } from "@/lib/contextMenus/registry";
 import { t } from "@/i18n";
 
 /** What the composer's plus button can do: upload a file, or ask a poll. */
-export type PlusOption = "upload" | "poll";
+export type PlusOption = "upload" | "poll" | "schedule";
 
 /**
  * What a tap on the plus button does: there is no button when it could do
@@ -18,6 +18,7 @@ export function plusButton(can: { attach: boolean; poll: boolean }): PlusButton 
   const options: PlusOption[] = [];
   if (can.attach) options.push("upload");
   if (can.poll) options.push("poll");
+  options.push("schedule");
   if (options.length === 0) return { kind: "none" };
   if (options.length === 1) return { kind: "direct", option: options[0]! };
   return { kind: "menu", options };
@@ -35,7 +36,9 @@ export function canCreatePoll(st: ServerState | undefined, channel: Pick<Channel
 
 /** What a plus button option is called, on the button and in its menu. */
 export function plusLabel(o: PlusOption): string {
-  return o === "upload" ? t("composer.composer.uploadAFile") : t("poll.create.title");
+  if (o === "upload") return t("composer.composer.uploadAFile");
+  if (o === "schedule") return t("composer.schedule.title");
+  return t("poll.create.title");
 }
 
 /** The plus button's menu, when there is a choice: each option it offers, and what choosing one does. */
@@ -43,6 +46,7 @@ export const plusMenu = defineMenu<{ options: PlusOption[]; run: (o: PlusOption)
   [
     button("uploadFile", ({ options, run }) => options.includes("upload") && { id: "upload", label: plusLabel("upload"), onSelect: () => run("upload") }),
     button("createPoll", ({ options, run }) => options.includes("poll") && { id: "poll", label: plusLabel("poll"), onSelect: () => run("poll") }),
+    button("scheduleMessage", ({ options, run }) => options.includes("schedule") && { id: "schedule", label: plusLabel("schedule"), onSelect: () => run("schedule") }),
   ],
 ]);
 

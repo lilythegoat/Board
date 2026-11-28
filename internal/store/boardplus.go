@@ -36,9 +36,6 @@ const ServerBoostCost = 500
 // MaxAvatarItems is how many wearable items one account may make.
 const MaxAvatarItems = 10
 
-// MaxNicknameLen is the longest friend nickname, in characters.
-const MaxNicknameLen = 32
-
 // ErrNotMember is returned when an action needs server membership.
 var ErrNotMember = errors.New("not a member of this server")
 
@@ -444,6 +441,25 @@ type EditRecord struct {
 	EditedAt    int64   `json:"edited_at"`
 }
 
+// SetProfileBanner saves the account's profile banner colour (0 = none).
+func (s *Store) SetProfileBanner(ctx context.Context, uid ids.ID, color int64) error {
+	if color < 0 || color > 0xFFFFFF {
+		return E(http.StatusBadRequest, "invalid_banner", "A banner is a colour, 0 to 16777215.")
+	}
+	_, err := s.db.W.ExecContext(ctx, `UPDATE users SET profile_banner = ? WHERE id = ?`, color, int64(uid))
+	return err
+}
+
+// ProfileBannerOf is the account's profile banner colour (0 = none).
+func (s *Store) ProfileBannerOf(ctx context.Context, uid ids.ID) (int64, error) {
+	var color int64
+	err := s.db.R.QueryRowContext(ctx, `SELECT profile_banner FROM users WHERE id = ?`, int64(uid)).Scan(&color)
+	if err != nil {
+		return 0, err
+	}
+	return color, nil
+}
+
 // RecordMessageEdit leaves one history line for a content edit.
 func (s *Store) RecordMessageEdit(ctx context.Context, messageID, editorID ids.ID) error {
 	_, err := s.db.W.ExecContext(ctx, `INSERT INTO message_edits (id, message_id, editor_id, edited_at) VALUES (?,?,?,?)`, int64(ids.New()), int64(messageID), int64(editorID), nowMs())
@@ -504,34 +520,7 @@ func (s *Store) HandsFor(ctx context.Context, channelID ids.ID) ([]*RaisedHand, 
 	return out, rows.Err()
 }
 
-// SetNickname gives a friend a nickname, or clears it with an empty one.
-func (s *Store) SetNickname(ctx context.Context, uid, friendID ids.ID, nickname string) error {
-	if nickname == "" {
-		_, err := s.db.W.ExecContext(ctx, `DELETE FROM friend_nicknames WHERE user_id = ? AND friend_id = ?`, int64(uid), int64(friendID))
-		return err
-	}
-	_, err := s.db.W.ExecContext(ctx, `INSERT INTO friend_nicknames (user_id, friend_id, nickname) VALUES (?,?,?) ON CONFLICT(user_id, friend_id) DO UPDATE SET nickname = excluded.nickname`, int64(uid), int64(friendID), nickname)
-	return err
-}
 
-// Nicknames is every nickname an account gave its friends.
-func (s *Store) Nicknames(ctx context.Context, uid ids.ID) (map[ids.ID]string, error) {
-	rows, err := s.db.R.QueryContext(ctx, `SELECT friend_id, nickname FROM friend_nicknames WHERE user_id = ?`, int64(uid))
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	out := map[ids.ID]string{}
-	for rows.Next() {
-		var fid ids.ID
-		var nick string
-		if err := rows.Scan(&fid, &nick); err != nil {
-			return nil, err
-		}
-		out[fid] = nick
-	}
-	return out, rows.Err()
-}
 
 // Bookmark is one saved message.
 type Bookmark struct {

@@ -590,3 +590,12 @@ button.sysName:hover { text-decoration: underline; }
 
 .amChannel { min-width: 0; max-width: 100%; vertical-align: bottom; }
 .amChannel > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* read receipts: "Seen" under the last message of mine in a DM */
+.receipt {
+  text-align: end;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.65;
+  padding: 2px 16px 8px;
+}

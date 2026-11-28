@@ -20,6 +20,7 @@ import { ServerNotificationsModal } from "./ServerNotificationsModal";
 import { ServerProfileModal } from "./ServerProfileModal";
 import { ChannelTopicModal } from "./ChannelTopicModal";
 import { CreatePollModal } from "./CreatePollModal";
+import { EditHistoryModal } from "./EditHistoryModal";
 import { IncomingCallHost } from "@/components/voice/IncomingCall";
 import { ShareScreenModal } from "@/components/voice/ShareScreenModal";
 import { ScreenPermission } from "@/components/desktop/DisplayPicker";
@@ -130,6 +131,7 @@ function ModalEntry({ modal }: { modal: ModalState }) {
       {modal?.kind === "guestLink" ? <GuestLinkModal onClose={close} channelId={String(modal.props?.["channelId"])} /> : null}
       {modal?.kind === "channelTopic" ? <ChannelTopicModal onClose={close} channelId={String(modal.props?.["channelId"])} /> : null}
       {modal?.kind === "createPoll" ? <CreatePollModal onClose={close} channelId={String(modal.props?.["channelId"])} /> : null}
+      {modal?.kind === "editHistory" ? <EditHistoryModal onClose={close} channelId={String(modal.props?.["channelId"])} messageId={String(modal.props?.["messageId"])} /> : null}
       {modal?.kind === "follow" ? <FollowDialog onClose={close} channelId={String(modal.props?.["channelId"])} /> : null}
       {modal?.kind === "createThread" ? <CreateThreadModal onClose={close} channelId={String(modal.props?.["channelId"])} messageId={modal.props?.["messageId"] as string | undefined} /> : null}
       {modal?.kind === "stickerPack" ? <StickerPackModal onClose={close} packId={String(modal.props?.["packId"])} pack={modal.props?.["pack"] as StickerPack | undefined} stickerId={modal.props?.["stickerId"] as string | undefined} /> : null}

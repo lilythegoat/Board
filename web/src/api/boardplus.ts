@@ -123,11 +123,11 @@ export const boardPlus = {
   hands(channelId: Snowflake): Promise<{ hands: VoiceHand[] }> {
     return api.request("GET", `/voice/${channelId}/hands`);
   },
-  nicknames(): Promise<{ nicknames: Record<string, string> }> {
-    return api.request("GET", "/nicknames");
+  bannerOf(userId: Snowflake): Promise<{ banner: number }> {
+    return api.request("GET", `/users/${userId}/banner`);
   },
-  setNickname(friendId: Snowflake, nickname: string): Promise<{ friend_id: Snowflake; nickname: string }> {
-    return api.request("POST", "/nicknames", { friend_id: friendId, nickname });
+  setBanner(color: number): Promise<{ banner: number }> {
+    return api.request("POST", "/me/banner", { color });
   },
   bookmarks(): Promise<{ bookmarks: Bookmark[] }> {
     return api.request("GET", "/bookmarks");
